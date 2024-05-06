@@ -1,0 +1,9 @@
+{
+    "cmake.sourceDirectory": "D:/VS_code/C/lab8_0",
+    "files.associations": {
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "type_traits": "c",
+        "errors.h": "c"
+    }
+}
