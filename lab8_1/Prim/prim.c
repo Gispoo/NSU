@@ -11,13 +11,7 @@ void close(FILE* in, FILE* out) {
     fclose(out);
 }
 
-typedef struct {
-    int a;
-    int b;
-    int len;
-} Edge;
-
-void enter(FILE* in, FILE* out, int n, int m, Edge edges[]) {
+void enter(FILE* in, FILE* out, int n, int m, int* graf) {
     if (n < 0 || n > MAX_SIZE) {
         close(in, out);
         bad_number_of_vertices();
@@ -29,20 +23,23 @@ void enter(FILE* in, FILE* out, int n, int m, Edge edges[]) {
     }
 
     for (int i = 0; i < m; ++i) {
-        if (fscanf(in, "%d %d %d", &edges[i].a, &edges[i].b, &edges[i].len) != 3) {
+        int a, b, len;
+        if (fscanf(in, "%d %d %d", &a, &b, &len) != 3) {
             close(in, out);
             error_read();
         }
 
-        if (edges[i].a < 1 || edges[i].a > n || edges[i].b < 1 || edges[i].b > m) {
+        if (a < 1 || a > n || b < 1 || b > m) {
             close(in, out);
             bad_vertex();
         }
 
-        if (edges[i].len < 0 || edges[i].len > INT_MAX) {
+        if (len < 0 || len > INT_MAX) {
             close(in, out);
             bad_length();
         }
+
+        graf[n * (a - 1) + b - 1] = len;
     }
 }
 
@@ -53,9 +50,9 @@ void prim(FILE* in, FILE* out) {
         error_read();
     }
 
-    Edge* edges = (Edge*) malloc(n * (sizeof(Edge)));
+    int* graf = (int*) malloc(n * n * sizeof(int));
 
-    enter(in, out, n, m, edges);
+    enter(in, out, n, m, graf);
 
-
+    
 }

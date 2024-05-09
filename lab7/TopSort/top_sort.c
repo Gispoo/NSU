@@ -59,7 +59,7 @@ void top_sort(FILE* in, FILE* out) {
         bad_number_of_lines(in, out);
 
     char* graf = (char*) malloc(num_vertic * num_vertic * sizeof(char));
-
+    
     enter(in, out, num_vertic, num_edg, graf);
 
     char* mass = (char*) malloc(num_vertic * sizeof(char));

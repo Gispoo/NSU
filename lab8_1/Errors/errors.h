@@ -10,7 +10,7 @@ void bad_number_of_edges();
 
 void bad_vertex();
 
-void bad_legth();
+void bad_length();
 
 void bad_number_of_lines();
 
