@@ -9,7 +9,7 @@
       "stopAtEntry": false,
       "externalConsole": true,
       "cwd": "d:/VS_code/C/lab8_1",
-      "program": "d:/VS_code/C/lab8_1/build/Debug/outDebug",
+      "program": "d:/VS_code/C/lab8_1/build/prim",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
