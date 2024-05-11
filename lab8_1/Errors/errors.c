@@ -32,35 +32,35 @@ void error_open_file() {
 
 void error_read() {
     printf("%s\n", errors[ERROR_READ - 1]);
-    exit(0);
+    return;
 }
 
-void bad_number_of_vertices() {
+int bad_number_of_vertices() {
     printf("%s\n", errors[BAD_NUMBER_OF_VERTICES - 1]);
-    exit(0);
+    return 1;
 }
 
-void bad_number_of_edges() {
+int bad_number_of_edges() {
     printf("%s\n", errors[BAD_NUMBER_OF_EDGES - 1]);
-    exit(0);
+    return 1;
 }
 
-void bad_vertex() {
+int bad_vertex() {
     printf("%s\n", errors[BAD_VERTEX - 1]);
-    exit(0);
+    return 1;
 }
 
-void bad_length() {
+int bad_length() {
     printf("%s\n", errors[BAD_LENGHT - 1]);
-    exit(0);
+    return 1;
 }
 
-void bad_number_of_lines() {
+int bad_number_of_lines() {
     printf("%s\n", errors[BAD_NUMBER_OF_LINES - 1]);
-    exit(0);
+    return 1;
 }
 
 void no_spanning_tree() {
     printf("%s\n", errors[NO_SPANNING_TREE - 1]);
-    exit(0);
+    return;
 }
