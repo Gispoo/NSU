@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #define MAX_SIZE 5000
+#define SHIFT -2
 
 void free_all(int* key, int* parent, int* graf) {
     free(key);
@@ -39,14 +40,14 @@ int enter(FILE* in, int n, int m, int graf[]) {
         if (len < 0 || len > INT_MAX)
             return bad_length();
 
-        graf[n * (a - 1) + b - 1] = len - 1;
-        graf[n * (b - 1) + a - 1] = len - 1;
+        graf[n * (a - 1) + b - 1] = len + SHIFT;
+        graf[n * (b - 1) + a - 1] = len + SHIFT;
     }
     return 0;
 }
 
 void next_node(int parent[], int start, int new_v) {
-    int next = start;
+    int next = start - 1;
     while (parent[next] != -1) {
         next = parent[next];
     }
@@ -55,11 +56,15 @@ void next_node(int parent[], int start, int new_v) {
 
 void update_key(int graf[], int key[], int parent[], int new_v, int start, int end, int n) {
     for (int j = 0; j < n; ++j) {
-        if (graf[new_v * n + j] != -2 && graf[new_v * n + j] + key[new_v] < key[j]) {
-            if (j == end)
-                next_node(parent, start, end);
+        if (graf[new_v * n + j] != SHIFT - 1 && (long long) graf[new_v * n + j] + key[new_v] < key[j]) {
+            if (j == end - 1)
+                next_node(parent, start, new_v);
             
-            key[j] = graf[new_v * n + j] + key[new_v];
+            if ((long long) graf[new_v * n + j] + key[new_v] > INT_MAX + 2 * SHIFT) {
+                key[j] = INT_MAX - 1;
+            } else {
+                key[j] = graf[new_v * n + j] + key[new_v];
+            }
         }
     }
 }
@@ -67,14 +72,14 @@ void update_key(int graf[], int key[], int parent[], int new_v, int start, int e
 void init(int graf[], int key[], int parent[], int start, int n) {
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
-            graf[i * n + j] = -2;
+            graf[i * n + j] = SHIFT - 1;
         }
         key[i] = INT_MAX;
         parent[i] = -2;
     }
 
-    key[start] = 0;
-    parent[start] = -1;
+    key[start - 1] = 0;
+    parent[start - 1] = -1;
 }
 
 int min_key(int parent[], int key[], int* min_w, int n) {
@@ -90,18 +95,24 @@ int min_key(int parent[], int key[], int* min_w, int n) {
 
 void print_answer(FILE* out, int parent[], int key[], int start, int end, int n) {
     for (int i = 0; i < n; ++i) {
-        fprintf(out, "%d ", key[i]);
+        if (key[i] == INT_MAX) fprintf(out, "oo ");
+
+        else if (key[i] == INT_MAX - 1) fprintf(out, "INT_MAX+ ");
+        
+        else if (i == start - 1) fprintf(out, "0 ");
+        
+        else fprintf(out, "%d ", key[i] - SHIFT);
     }
 
     for (int i = 1; i < n; ++i) {
-        if (parent[i] == -1) {
+        if (parent[i] == -2) {
             fprintf(out, "\nno path");
             return;
         }
     }
 
     long long len_path = 0;
-    int next = start;
+    int next = start - 1;
     while (parent[next] != -1) {
         len_path += key[parent[next]];
         next = parent[next];
@@ -110,7 +121,7 @@ void print_answer(FILE* out, int parent[], int key[], int start, int end, int n)
     if (len_path > INT_MAX) fprintf(out, "\noverflow");
 
     for (int i = 1; i < n; ++i) {
-        fprintf(out, "%d %d\n", i + 1, parent[i] + 1);
+        fprintf(out, "%d ", parent[i]);
     }
 
     return;
@@ -136,7 +147,7 @@ void dijkstra(FILE* in, FILE* out) {
         return;
     }
 
-    update_key(graf, key, parent, start, start, end, n);
+    update_key(graf, key, parent, start - 1, start, end, n);
     
     for (int count = 1; count < n; ++count) {
         int min_w = INT_MAX;
