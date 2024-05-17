@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/VS_code/C/lab8_1",
-      "program": "d:/VS_code/C/lab8_1/build/Debug/outDebug",
+      "cwd": "d:/VS_code/C/lab9",
+      "program": "d:/VS_code/C/lab9/build/Dijkstra",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
