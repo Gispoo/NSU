@@ -31,6 +31,19 @@ int chek_condition(int n, int m, int s, int f) {
     return 0;
 }
 
+void init(int graf[], Data* state, int s, int n) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            graf[i * n + j] = -1;
+        }
+        state->key[i] = LONG_LONG_MAX;
+        state->parent[i] = -2;
+    }
+
+    state->key[s - 1] = 0;
+    state->parent[s - 1] = -1;
+}
+
 int enter(FILE* in, int n, int m, int graf[]) {
     for (int i = 0; i < m; ++i) {
         int a, b;
@@ -50,50 +63,51 @@ int enter(FILE* in, int n, int m, int graf[]) {
     return 0;
 }
 
-void next_node(int parent[], int s, int n_v) {
-    if (n_v == s - 1) return;
-
-    int next = s - 1;
-    while (parent[next] != -1) {
-        next = parent[next];
-    }
-    parent[next] = n_v;
-}
-
-void update_key(int graf[], Data* state, int n_v, int s, int f, int n, int* n_p) {
-    for (int j = 0; j < n; ++j) {
-        if (graf[n_v * n + j] != -1 && graf[n_v * n + j] + state->key[n_v] <= state->key[j]) {
-            if (j == f - 1) ++(*n_p);
-
-            next_node(state->parent, s, n_v);
-            
-            state->key[j] = graf[n_v * n + j] + state->key[n_v];
-        }
-    }
-}
-
-void init(int graf[], Data* state, int s, int n) {
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            graf[i * n + j] = -1;
-        }
-        state->key[i] = LONG_LONG_MAX;
-        state->parent[i] = -2;
-    }
-
-    state->key[s - 1] = 0;
-    state->parent[s - 1] = -1;
-}
-
-int min_key(Data* state, long long* min_w, int n) {
+int min_key(Data* state, int n) {
     int index = -1;
+    long long min_w = LONG_LONG_MAX;
     for (int i = 0; i < n; ++i) {
-        if (state->parent[i] == -2 && state->key[i] < *min_w) {
-            *min_w = state->key[i];
+        if (state->parent[i] == -2 && state->key[i] < min_w) {
+            min_w = state->key[i];
             index = i;
         }
     }
     return index;
+}
+
+int get_parent(int graf[], Data* state, int new_v, int n) {
+    long long min = LONG_LONG_MAX;
+    int index = -1;
+    for (int i = 0; i < n; ++i) {
+        if (state->parent[i] != -2 && graf[i * n + new_v] != -1) {
+            if (state->key[i] + graf[i * n + new_v] < min) {
+                min = state->key[i] + graf[i * n + new_v];
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+
+void update_key(int graf[], Data* state, int new_v, int f, int n, int* n_path) {
+    for (int j = 0; j < n; ++j) {
+        if (graf[new_v * n + j] != -1 && graf[new_v * n + j] + state->key[new_v] <= state->key[j]) {
+            if (j == f - 1) ++(*n_path);
+            
+            state->key[j] = graf[new_v * n + j] + state->key[new_v];
+        }
+    }
+}
+
+void go(Data* state, int graf[], int f, int* n_path, int n) {
+    for (int count = 1; count < n; ++count) {
+        int new_v = min_key(state, n);
+
+        if (new_v == -1) break;
+        state->parent[new_v] = get_parent(graf, state, new_v, n);
+
+        update_key(graf, state, new_v, f, n, n_path);
+    }
 }
 
 void print_first_line(FILE* out, long long key[], int n) {
@@ -102,40 +116,34 @@ void print_first_line(FILE* out, long long key[], int n) {
 
         else if (key[i] > INT_MAX) fprintf(out, "INT_MAX+ ");
         
-        else fprintf(out, "%d ", key[i]);
+        else fprintf(out, "%lld ", key[i]);
     }
 
     fprintf(out, "\n");
 }
 
-void print_second_line(FILE* out, Data* state, int s, int f, int n, int n_p) {
+void print_second_line(FILE* out, Data* state, int s, int f, int n_path) {
     if (s == f) {
         fprintf(out, "%d", s);
         return;
     }
 
-    if (n_p == 0) {
+    if (n_path == 0) {
         fprintf(out, "no path");
         return;
     }
 
-    if (state->key[f - 1] > INT_MAX && n_p > 1) {
+    if (state->key[f - 1] > INT_MAX && n_path > 1) {
         fprintf(out, "overflow");
         return;
     }
 
-    int next = s - 1, i = 0;
-    int* answer = (int*) calloc(n, sizeof(int));
-    for ( ; state->parent[next] != -1; ++i) {
-        answer[i] = next + 1;
+    int next = f - 1;
+    while (state->parent[next] != -1) {
+        fprintf(out, "%d ", next + 1);
         next = state->parent[next];
     }
-    answer[i] = f;
-    
-    for (i = n - 1; i >= 0; --i) {
-        if (answer[i] != 0) fprintf(out, "%d ", answer[i]);
-    }
-    free(answer);
+    fprintf(out, "%d ", next + 1);
 
     return;
 }
@@ -157,27 +165,17 @@ void dijkstra(FILE* in, FILE* out) {
     init(graf, &state, s, n);
 
     if (enter(in, n, m, graf)) {
-        free(graf);
+        free_all(&state, graf);
         return;
     }
 
-    int n_p = 0;
-    update_key(graf, &state, s - 1, s, f, n, &n_p);
+    int n_path = 0;
+    update_key(graf, &state, s - 1, f, n, &n_path);
 
-    for (int count = 1; count < n; ++count) {
-        long long min_w = LONG_LONG_MAX;
-        int n_v = min_key(&state, &min_w, n);
-
-        if (n_v == -1) break;
-        state.parent[n_v] = -1;
-
-        update_key(graf, &state, n_v, s, f, n, &n_p);
-
-        if (n_v == f - 1) next_node(state.parent, s, n_v);
-    }
+    go(&state, graf, f, &n_path, n);
 
     print_first_line(out, state.key, n);
-    print_second_line(out, &state, s, f, n, n_p);
+    print_second_line(out, &state, s, f, n_path);
 
     free_all(&state, graf);
 }
