@@ -1,14 +1,20 @@
 #include "KMP/kmp.h"
-#include "Errors/errors.h"
 
 #include <stdio.h>
 
-int main(){
+int main() {
     FILE* in = fopen("in.txt", "r");
     FILE* out = fopen("out.txt", "w");
 
-    if (in == NULL || out == NULL) 
-        error_open_file();
+    if (in == NULL) {
+        printf("Error open in.");
+        return 0;
+    }
+    if (out == NULL) {
+        fclose(in);
+        printf("Error open out.");
+        return 0;
+    }
 
     kmp(in, out);
 
