@@ -2,7 +2,7 @@
 #include "string.h"
 
 #define MAX_SIZE 17
-#define MAX_SIZE2 20
+#define MAX_SIZE2 2000
 
 void get_table_of_shifts(FILE* out, char pattern[], char arr[], int len_p) {
     if (len_p) fprintf(out, "0 ");
@@ -22,13 +22,15 @@ void get_table_of_shifts(FILE* out, char pattern[], char arr[], int len_p) {
 }
 
 int read(FILE* in, char txt[]) {
+    int count = 0;
     for (int i = 0; i < MAX_SIZE2; ++i) {
         if (!txt[i]) {
-            if ((txt[i] = fgetc(in)) == EOF)
-                return 1;
+            if ((txt[i] = fgetc(in)) == EOF) return count;
+
+            ++count;
         }
     }
-    return 0;
+    return count;
 }
 
 void buff(char txt[], int len_txt, int index) {
@@ -44,10 +46,8 @@ void buff(char txt[], int len_txt, int index) {
 void search(FILE* in, FILE* out, char pattern[], char arr[], int len_p) {
     char txt[MAX_SIZE2] = {0};
     int position = 0, len_txt = 0;
-    
-    int end;
-    while (1) {
-        end = read(in, txt);
+
+    while (read(in, txt)) {
         len_txt = strlen(txt);
         int i = 0, j = 0;
         
@@ -69,7 +69,6 @@ void search(FILE* in, FILE* out, char pattern[], char arr[], int len_p) {
         position += i;
 
         buff(txt, len_txt, i);
-        if (end) break;
     }
 }
 
