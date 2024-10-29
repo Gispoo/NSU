@@ -36,50 +36,42 @@ _main:
 	pushl	%ebp
 	movl	%esp, %ebp
 	andl	$-16, %esp
-	subl	$64, %esp
+	subl	$48, %esp
 	call	___main
-	movl	$-1294967296, 32(%esp)
-	movl	$0, 36(%esp)
-	movl	$-1, 60(%esp)
+	movl	$-1294967296, 16(%esp)
+	movl	$0, 20(%esp)
+	movl	$-1, 44(%esp)
 	fld1
-	fstpt	48(%esp)
-	movl	$1, 40(%esp)
-	movl	$0, 44(%esp)
+	fstpt	32(%esp)
+	movl	$1, 24(%esp)
+	movl	$0, 28(%esp)
 	jmp	L4
 L5:
-	fildl	60(%esp)
-	fildq	40(%esp)
+	fildl	44(%esp)
+	fildq	24(%esp)
 	fld	%st(0)
 	faddp	%st, %st(1)
 	fld1
 	faddp	%st, %st(1)
 	fdivrp	%st, %st(1)
-	fldt	48(%esp)
+	fldt	32(%esp)
 	faddp	%st, %st(1)
-	fstpt	48(%esp)
-	negl	60(%esp)
-	addl	$1, 40(%esp)
-	adcl	$0, 44(%esp)
+	fstpt	32(%esp)
+	negl	44(%esp)
+	addl	$1, 24(%esp)
+	adcl	$0, 28(%esp)
 L4:
-	movl	40(%esp), %eax
-	movl	44(%esp), %edx
-	cmpl	32(%esp), %eax
+	movl	24(%esp), %eax
+	movl	28(%esp), %edx
+	cmpl	16(%esp), %eax
 	movl	%edx, %eax
-	sbbl	36(%esp), %eax
+	sbbl	20(%esp), %eax
 	jl	L5
-	fldt	48(%esp)
+	fldt	32(%esp)
 	fstpt	4(%esp)
 	movl	$LC1, (%esp)
 	call	__Z6printfPKcz
-	fldt	48(%esp)
-	fnstcw	30(%esp)
-	movzwl	30(%esp), %eax
-	orb	$12, %ah
-	movw	%ax, 28(%esp)
-	fldcw	28(%esp)
-	fistpl	24(%esp)
-	fldcw	30(%esp)
-	movl	24(%esp), %eax
+	movl	$0, %eax
 	leave
 	ret
 	.ident	"GCC: (GNU) 13.1.0"

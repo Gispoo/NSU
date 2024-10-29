@@ -31,50 +31,35 @@ _main:
 	pushl	%esi
 	pushl	%ebx
 	andl	$-16, %esp
-	subl	$48, %esp
+	subl	$32, %esp
 	call	___main
 	movl	$1, %ecx
 	movl	$0, %ebx
 	fld1
-	fstpt	16(%esp)
 	movl	$-1, %edx
-	jmp	L4
-L7:
-	fstp	%st(0)
 L4:
-	movl	%edx, 28(%esp)
-	fildl	28(%esp)
+	movl	%edx, 20(%esp)
+	fildl	20(%esp)
 	movd	%ecx, %xmm0
 	movd	%ebx, %xmm1
 	punpckldq	%xmm1, %xmm0
-	movq	%xmm0, 32(%esp)
-	fildq	32(%esp)
+	movq	%xmm0, 24(%esp)
+	fildq	24(%esp)
 	fadd	%st(0), %st
 	fadds	LC0
 	fdivrp	%st, %st(1)
-	fldt	16(%esp)
 	faddp	%st, %st(1)
-	fld	%st(0)
-	fstpt	16(%esp)
 	negl	%edx
 	addl	$1, %ecx
 	adcl	$0, %ebx
 	movl	%ecx, %eax
 	xorl	$-1294967296, %eax
 	orl	%ebx, %eax
-	jne	L7
+	jne	L4
 	fstpt	4(%esp)
 	movl	$LC1, (%esp)
 	call	__Z6printfPKcz
-	fnstcw	46(%esp)
-	movzwl	46(%esp), %eax
-	orb	$12, %ah
-	movw	%ax, 44(%esp)
-	fldt	16(%esp)
-	fldcw	44(%esp)
-	fistpl	16(%esp)
-	fldcw	46(%esp)
-	movl	16(%esp), %eax
+	movl	$0, %eax
 	leal	-8(%ebp), %esp
 	popl	%ebx
 	popl	%esi

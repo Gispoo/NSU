@@ -1,19 +1,14 @@
 #include <stdio.h>
-#include <math.h>
 
 int main() {
-    unsigned long long n = 500000;
+  double a = 1e16;
+  double b = -1e16;
+  double c = 1.0;
 
-    int sg = -1;
-    long double pi = 1;
-    for (unsigned long long j = 1; j < n; ++j) {
-        pi += sg / (2 * (long double)j + 1);
-        sg *= -1;
-    }
-
-    long double x = 0.31134; 
-    long double sinx = sin(x);
-
-    printf("sin(x) = %.20Lf\n", sinx);
-    printf("Pi = %.20Lf\n", 4 * pi);
+  double result = (a + b) + c;
+  double result2 = a + (b + c);
+  
+  printf("result: %.20f\n", result);
+  printf("result2: %.20f\n", result2);
+  return 0;
 }
