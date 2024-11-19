@@ -3,7 +3,9 @@
     {
       "name": "windows-gcc-x64",
       "includePath": [
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/**",
+        "C:/Users/ogilk/Downloads/opencv/build/include",
+        "C:/Users/ogilk/Downloads/libusb/include/libusb-1.0"
       ],
       "compilerPath": "C:/Users/ogilk/gcc/bin/gcc.exe",
       "cStandard": "${default}",
