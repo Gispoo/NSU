@@ -1,123 +1,72 @@
-#include <iostream>
-#include <libusb.h>
 #include <stdio.h>
-#include <string>
+#include <stdlib.h>
+#include <libusb-1.0/libusb.h>
 
-using namespace std;
 
-void printdev(libusb_device *dev);
-
-int main() {
-    libusb_device **devs; 
-    libusb_context *ctx = NULL;
-    int r;
-    ssize_t cnt;
-    ssize_t i;
-
-    r = libusb_init(&ctx);
+void print_device_info(libusb_device *dev) {
+    struct libusb_device_descriptor desc;
+    int r = libusb_get_device_descriptor(dev, &desc);
     if (r < 0) {
-        fprintf(stderr, "Error: Initialization failed, code: %d.n", r);
-        return 1;
-    }
-
-    libusb_set_debug(ctx, 3);
-
-    cnt = libusb_get_device_list(ctx, &devs);
-    if (cnt < 0) {
-        fprintf(stderr, "Error: USB device list not obtained.n", r);
-        return 1;
-    }
-
-    printf("Найдено устройств: %dn", cnt);
-    printf("=============================================================n");
-    printf("* Количество возможных конфигурацийn");
-    printf("| * Класс устройстваn");
-    printf("| | * Идентификатор производителяn");
-    printf("| | | * Идентификатор устройстваn");
-    printf("| | | | * Серийный номерn");
-    printf("| | | | | * Количество интерфейсовn");
-    printf("| | | | | | * Количество альтернативных настроекn");
-    printf("| | | | | | | * Класс устройстваn");
-    printf("| | | | | | | | * Номер интерфейсаn");
-    printf("| | | | | | | | | * Количество конечных точекn");
-    printf("| | | | | | | | | | * Тип дескриптораn");
-    printf("| | | | | | | | | | | * Адрес конечной точкиn");
-    printf("+--+--+----+----+---+--+--+--+--+--+----------------------n");
-
-    for (i = 0; i < cnt; i++) {
-        printdev(devs[i]);
-    }
-
-    printf("=============================================================n");
-    libusb_free_device_list(devs, 1);
-    libusb_exit(ctx);
-
-    return 0;
-}
-
-void printdev(libusb_device *dev) {
-    libusb_device_descriptor desc;
-    libusb_config_descriptor *config;
-    const libusb_interface *inter;
-    const libusb_interface_descriptor *interdesc;
-    const libusb_endpoint_descriptor *epdesc;
-    int r;
-
-    r = libusb_get_device_descriptor(dev, &desc);
-    if (r < 0) {
-        fprintf(stderr, "Error: Device descriptor not obtained, code: %d.n", r);
+        fprintf(stderr, "Failed to get device descriptor: %s\n", libusb_error_name(r));
         return;
     }
 
-    libusb_get_config_descriptor(dev, 0, &config);
+
+    printf("Device Class: %02x\n", desc.bDeviceClass);
+    printf("Vendor ID: %04x\n", desc.idVendor);
+    printf("Product ID: %04x\n", desc.idProduct);
+
 
     libusb_device_handle *handle;
     r = libusb_open(dev, &handle);
-    if (r < 0) {
-        fprintf(stderr, "Error: Failed to open device.n");
+    if (r != LIBUSB_SUCCESS) {
+        fprintf(stderr, "Failed to open device: %s\n", libusb_error_name(r));
         return;
     }
 
-    unsigned char serial_string[256];
-    int serial_length;
-    r = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, serial_string, sizeof(serial_string));
-    if (r > 0) {
-        serial_length = r;
+
+    if (desc.iSerialNumber > 0) {
+        unsigned char serial[256];
+        r = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, serial, sizeof(serial));
+        if (r >= 0) {
+            printf("Serial Number: %s\n", serial);
+        } else {
+            fprintf(stderr, "Failed to get Serial Number: %s\n", libusb_error_name(r));
+        }
     } else {
-        serial_length = 0;
-        strcpy((char*)serial_string, "N/A");
+        printf("No Serial Number\n");
     }
+
 
     libusb_close(handle);
+}
 
-    printf("%.2d %.2d %.4d %.4d %.10s | | | | | |n",
-           (int)desc.bNumConfigurations,
-           (int)desc.bDeviceClass,
-           desc.idVendor,
-           desc.idProduct,
-           serial_string
-           );
 
-    for (int i = 0; i < (int)config->bNumInterfaces; i++) {
-        inter = &config->interface[i];
-        printf("| | | | | %.2d %.2d | | | |n",
-               inter->num_altsetting,
-               (int)desc.bDeviceClass
-               );
-        for (int j = 0; j < inter->num_altsetting; j++) {
-            interdesc = &inter->altsetting[j];
-            printf("| | | | | | | %.2d %.2d | |n",
-                   (int)interdesc->bInterfaceNumber,
-                   (int)interdesc->bNumEndpoints
-                   );
-            for (int k = 0; k < (int)interdesc->bNumEndpoints; k++) {
-                epdesc = &interdesc->endpoint[k];
-                printf("| | | | | | | | | %.2d %.9dn",
-                       (int)epdesc->bDescriptorType,
-                       (int)(int)epdesc->bEndpointAddress
-                       );
-            }
-        }
+int main(void) {
+    libusb_context *ctx = NULL;
+    int r = libusb_init(&ctx);
+    if (r < 0) {
+        fprintf(stderr, "Failed to initialize libusb: %s\n", libusb_error_name(r));
+        return -1;
     }
-    libusb_free_config_descriptor(config);
+
+
+    libusb_device **devices;
+    ssize_t cnt = libusb_get_device_list(ctx, &devices);
+    if (cnt < 0) {
+        fprintf(stderr, "Error getting device list: %s\n", libusb_error_name(cnt));
+        libusb_exit(ctx);
+        return -1;
+    }
+
+
+    for (ssize_t i = 0; i < cnt; i++) {
+        print_device_info(devices[i]);
+        printf("\n");
+    }
+
+
+    libusb_free_device_list(devices, 1);
+    libusb_exit(ctx);
+    return 0;
 }
