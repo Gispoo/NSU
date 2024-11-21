@@ -2,7 +2,7 @@ The program takes a text file name as input. It counts the frequency of each wor
 
 **Program invocation format:** `<path to executable file> <executable file name> <file name>` 
 
-****Example of a correct invocation:** ./lab 0 book.txt
+**Example of a correct invocation:** ./lab0 book.txt
 
 **Examples of arguments:** test.txt; war_and_world.txt; book.txt
 

@@ -4,26 +4,33 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include "./src/include/CountWords.hpp"
-#include "./src/include/Print.hpp"
-#include "./src/include/Start.hpp"
+#include <stdexcept>
+#include "./src/include/CounterWord.hpp"
+#include "./src/include/Printer.hpp"
+#include "./src/include/Reader.hpp"
+
+void checking_input(int argc) {
+    if (argc != 3) {
+        throw std::runtime_error("Incorrect number of arguments.\nSee the examples of calling the program in ReadMe.md\n");
+    }
+}
 
 int main(int argc, char* argv[]) {
     try {
         checking_input(argc);
 
-        Start start(argv[1], argv[2]);
-        start.open_in_file();
+        Reader reader(argv[1], argv[2]);
+        reader.open_input_file();
 
-        CountWords cout_words;
-        cout_words.count_words(start.in);
-        start.in.close();
+        CounterWord couter_word;
+        couter_word.count_word(reader.input_file);
+        reader.input_file.close();
 
-        Print print;
-        print.sort_dictionary(cout_words.dictionary);
+        Printer printer;
+        printer.sort_dictionary(couter_word.dictionary);
 
-        start.open_out_file();
-        print.print_dictionary(cout_words.dictionary, cout_words.num, start.out);
+        reader.open_output_file();
+        printer.print_dictionary(couter_word.dictionary, couter_word.num, reader.output_file);
 
         std::cout << "All files were successfully closed. "
         << "The program has been completed\n\n";
