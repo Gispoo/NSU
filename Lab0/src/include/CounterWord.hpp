@@ -1,5 +1,5 @@
-#ifndef COUNTWORDS_H
-#define COUNTWORDS_H
+#ifndef COUNTERWORD_H
+#define COUNTERWORD_H
 
 #include <iostream>
 #include <fstream>

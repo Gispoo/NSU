@@ -8,6 +8,7 @@
 #include "./src/include/CounterWord.hpp"
 #include "./src/include/Printer.hpp"
 #include "./src/include/Reader.hpp"
+#include "./src/include/Sorter.hpp"
 
 void checking_input(int argc) {
     if (argc != 3) {
@@ -19,18 +20,20 @@ int main(int argc, char* argv[]) {
     try {
         checking_input(argc);
 
-        Reader reader(argv[1], argv[2]);
+        Reader reader(argv[1]);
         reader.open_input_file();
 
         CounterWord couter_word;
         couter_word.count_word(reader.input_file);
         reader.input_file.close();
 
-        Printer printer;
-        printer.sort_dictionary(couter_word.dictionary);
+        Sorter sorter;
+        sorter.sort_dictionary(couter_word.dictionary);
 
-        reader.open_output_file();
-        printer.print_dictionary(couter_word.dictionary, couter_word.num, reader.output_file);
+        Printer printer(argv[2]);
+        printer.open_output_file();
+        printer.print_dictionary(couter_word.dictionary, sorter.sorted_dictionary, couter_word.num);
+        printer.output_file.close();
 
         std::cout << "All files were successfully closed. "
         << "The program has been completed\n\n";

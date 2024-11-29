@@ -11,4 +11,6 @@ add_executable(lab0 main.cpp
     src/include/Printer.hpp
     src/Reader.cpp
     src/include/Reader.hpp
+    src/Sorter.cpp
+    src/include/Sorter.hpp
 )
