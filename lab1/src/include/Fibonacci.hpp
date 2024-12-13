@@ -1,18 +1,19 @@
 #ifndef FIBONACCI_H
 #define FIBONACCI_H
 
-#include "./ICacheable.hpp"
+#include <memory>
+#include "./ICache.hpp"
 
-template <typename K, typename V>
 class Fibonacci {
 public:
-    Fibonacci(ICacheable<K,V>& cache) : cache(cache) {}
-    V calculate(const K& key);
-    ~Fibonacci() { delete cache; }
+    int fibNumber;
+
+    Fibonacci(std::unique_ptr<ICache<int, int>> cache) : cache(std::move(cache)) {}
+    int calculate(const int& key);
 
 private:
-    ICacheable<K,V>& cache;
-    V fibonacci(const K& n);
+    std::unique_ptr<ICache<int, int>> cache;
+    int fibonacci(const int& n);
 };
 
 #endif

@@ -3,10 +3,10 @@
 
 #include <map>
 #include <list>
-#include "./ICacheable.hpp"
+#include "./ICache.hpp"
 
 template <typename K, typename V>
-class LFUCache : public ICacheable<K, V> {
+class LFUCache : public ICache<K, V> {
 public:
   LFUCache(size_t capacity) : capacity(capacity) {}
 
@@ -14,6 +14,7 @@ public:
   void put(const K& key, const V& value) override;
   V operator[](const K& key) override;
 
+  ~LRUCache() {} = default;
 private:
   std::map<K, V> values;
   std::map<K, int> freq;

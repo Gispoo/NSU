@@ -3,10 +3,10 @@
 
 #include <map>
 #include <list>
-#include "./ICacheable.hpp"
+#include "./ICache.hpp"
 
 template <typename K, typename V>
-class LRUCache : public ICacheable<K, V> {
+class LRUCache : public ICache<K, V> {
 public:
   LRUCache(size_t capacity) : capacity(capacity) {}
 
@@ -14,9 +14,10 @@ public:
   void put(const K& key, const V& value) override;
   V operator[](const K& key) override;
 
+  ~LRUCache() {} = default;
 private:
   std::list<K> list;
-  std::map<K, std::list<K>::iterator> map;
+  std::map<K, typename std::list<std::pair<K, V>>::iterator> map;
   size_t capacity;
 };
 

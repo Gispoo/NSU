@@ -3,9 +3,9 @@
 
 #include <vector>
 
-class Reader {
+class ArgumentReader {
 public:
-    long long readInput(int argc, char* argv[]);
+    long long parse(int argc, char* argv[]);
 };
 
 #endif

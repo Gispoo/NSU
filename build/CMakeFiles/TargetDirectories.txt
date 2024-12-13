@@ -1,0 +1,3 @@
+D:/vsc/C-/build/CMakeFiles/lab1.dir
+D:/vsc/C-/build/CMakeFiles/edit_cache.dir
+D:/vsc/C-/build/CMakeFiles/rebuild_cache.dir
