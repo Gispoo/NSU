@@ -6,29 +6,21 @@
 #include "./src/include/ICacheable.hpp"
 #include "./src/include/Fibonacci.hpp"
 #include "./src/include/Reader.hpp"
-#include "./src/include/ReaderFile.hpp"
 
 int main(int argc, char* argv[]) {
+    Reader reader;
     try {
-        ReaderFile ReaderFile(argc, argv);
-        Reader& Reader = ReaderFile;
+        long long fibNumber = reader.readInput(argc, argv);
 
-        int n = Reader.get_num_fib_num();
+        auto cache = new LRUCache<long long, long long>(10);
+        // Fibonacci<long long, long long> wrapper(cache);
 
-        LRUCache Rcashe;
-        LFUCache Fcashe;
+        // long long result = wrapper.calculate(fibNumber);
+        // std::cout << "Fibonacci(" << fibNumber << ") = " << result << std::endl;
 
-        ICacheable& InterfaceR = Rcashe;
-        ICacheable& InterfaceF = Fcashe;
-
-        Fibonacci FibR(InterfaceR);
-        Fibonacci FibF(InterfaceF);
-
-        FibR.get_fib_num(n);
-        FibF.get_fib_num(n);
-
-    } catch(const std::string& error_masseg) {
-        std::cout << error_masseg;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
     }
 
     return 0;

@@ -2,16 +2,17 @@
 #define FIBONACCI_H
 
 #include "./ICacheable.hpp"
-#include "./ReaderFile.hpp"
 
+template <typename K, typename V>
 class Fibonacci {
-private:
-    ICacheable& interface;
-
 public:
-    Fibonacci(ICacheable& I) : interface(I) {}
+    Fibonacci(ICacheable<K,V>& cache) : cache(cache) {}
+    V calculate(const K& key);
+    ~Fibonacci() { delete cache; }
 
-    int get_fib_num(int n);
+private:
+    ICacheable<K,V>& cache;
+    V fibonacci(const K& n);
 };
 
 #endif

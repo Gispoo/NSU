@@ -11,6 +11,6 @@ add_executable(lab1 main.cpp
     src/include/LRUCache.hpp
     src/LFUCache.cpp
     src/include/ReaLFUCacheder.hpp
-    src/CacheWrapper.cpp
-    src/include/CacheWrapper.hpp
+    src/Fibonacci.cpp
+    src/include/Fibonacci.hpp
 )

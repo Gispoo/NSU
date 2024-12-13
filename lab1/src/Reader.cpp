@@ -1,5 +1,8 @@
+#include <iostream>
+#include <string>
+#include <stdexcept>
 #include "./include/Reader.hpp"
 
-Reader::Reader(int num_fib, char* argv[]) {
+long long Reader::readInput(int argc, char* argv[]) {
 
 }

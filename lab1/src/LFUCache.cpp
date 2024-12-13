@@ -1,17 +1,16 @@
 #include "./include/LFUCache.hpp" 
 
-LFUCache::LFUCache() {
+template <typename K, typename V>
+V LFUCache<K, V>::get(const K& key) {
 
 }
 
-void LFUCache::get() {
+template <typename K, typename V>
+void LFUCache<K, V>::put(const K& key, const V& value) {
 
 }
 
-void LFUCache::put() {
-
-}
-
-LFUCache::~LFUCache() {
+template <typename K, typename V>
+V LFUCache<K, V>::operator[](const K& key) {
 
 }

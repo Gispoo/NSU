@@ -1,5 +1,11 @@
 #include "./include/Fibonacci.hpp"
 
-int Fibonacci::get_fib_num(int n) {
+template <typename K, typename V>
+V Fibonacci<K,V>::calculate(const K& n) {
+
+}
+
+template <typename K, typename V>
+V Fibonacci<K,V>::fibonacci(const K& n) {
 
 }

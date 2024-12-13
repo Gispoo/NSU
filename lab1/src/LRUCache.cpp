@@ -1,17 +1,16 @@
 #include "./include/LRUCache.hpp"
 
-LRUCache::LRUCache() {
+template <typename K, typename V>
+V LRUCache<K, V>::get(const K& key) {
 
 }
 
-void LRUCache::get() {
+template <typename K, typename V>
+void LRUCache<K, V>::put(const K& key, const V& value) {
 
 }
 
-void LRUCache::put() {
+template <typename K, typename V>
+V LRUCache<K, V>::operator[](const K& key) {
 
-}
-
-LRUCache::~LRUCache() {
-   
 }
