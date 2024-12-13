@@ -31,5 +31,6 @@
 *.out
 *.app
 
-./Lab0/build/
-./Lab0/.vscode/
+/Lab0/build/
+/Lab0/.vscode/
+.vscode/

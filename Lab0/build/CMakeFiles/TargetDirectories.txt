@@ -1,3 +1,0 @@
-D:/vsc/C-/Lab0/build/CMakeFiles/lab0.dir
-D:/vsc/C-/Lab0/build/CMakeFiles/edit_cache.dir
-D:/vsc/C-/Lab0/build/CMakeFiles/rebuild_cache.dir
