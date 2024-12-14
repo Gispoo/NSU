@@ -33,5 +33,5 @@
 
 .vscode/
 build/
-googletest/
+googletest
 googletest-build/

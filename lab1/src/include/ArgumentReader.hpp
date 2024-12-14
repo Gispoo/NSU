@@ -5,7 +5,7 @@
 
 class ArgumentReader {
 public:
-    long long parse(int argc, char* argv[]);
+    int parse(int argc, char* argv[]);
 };
 
 #endif
