@@ -9,19 +9,19 @@
 #include "./src/include/ArgumentReader.hpp"
 
 int main(int argc, char* argv[]) {
-    ArgumentReader argument_reader;
-    try {
-        auto cache = std::make_unique<LRUCache<int, int>>(10);
-        Fibonacci fib(std::move(cache));
+    // ArgumentReader argument_reader;
+    // try {
+    //     auto cache = std::make_unique<LRUCache<int, int>>(10);
+    //     Fibonacci fib(std::move(cache));
 
-        fib.fibNumber = argument_reader.parse(argc, argv);
-        long long result = fib.calculate(fib.fibNumber);
-        std::cout << "Fibonacci(" << fib.fibNumber << ") = " << result << std::endl;
+    //     fib.fibNumber = argument_reader.parse(argc, argv);
+    //     long long result = fib.calculate(fib.fibNumber);
+    //     std::cout << "Fibonacci(" << fib.fibNumber << ") = " << result << std::endl;
 
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
-    }
+    // } catch (const std::exception& e) {
+    //     std::cerr << "Error: " << e.what() << std::endl;
+    //     return 1;
+    // }
 
     return 0;
 }

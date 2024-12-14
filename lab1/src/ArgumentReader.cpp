@@ -5,4 +5,5 @@
 
 long long ArgumentReader::parse(int argc, char* argv[]) {
 
+    return 0;
 }

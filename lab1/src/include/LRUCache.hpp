@@ -13,8 +13,6 @@ public:
   V get(const K& key) override;
   void put(const K& key, const V& value) override;
   V operator[](const K& key) override;
-
-  ~LRUCache() {} = default;
 private:
   std::list<K> list;
   std::map<K, typename std::list<std::pair<K, V>>::iterator> map;
