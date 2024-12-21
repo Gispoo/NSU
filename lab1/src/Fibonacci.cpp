@@ -1,6 +1,6 @@
 #include "./include/Fibonacci.hpp"
 #include "../exception/CacheE.hpp"
-#include "../exception/EFibonacci.hpp"
+#include "../exception/FibonacciE.hpp"
 
 int Fibonacci::fib(const int& key) {
     if (key < 0) throw NumFibLessZero("The number of the fibonacci number must be at least 0.");

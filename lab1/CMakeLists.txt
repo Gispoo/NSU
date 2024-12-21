@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(src/include exception/)
 
 add_executable(lab1 main.cpp
-    src/ArgumentReader.cpp
     src/Fibonacci.cpp
     src/RunProgramm.cpp
 )
