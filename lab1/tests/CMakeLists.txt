@@ -3,7 +3,7 @@ project(TestLab1)
 
 find_package(GTest REQUIRED)
 
-include_directories(../src/include ../exception/include)
+include_directories(../src/include ../exception)
 
 add_executable(TestLab1 main_test.cpp
     ./src/LRUCacheTest.cpp

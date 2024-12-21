@@ -3,8 +3,9 @@
 
 #include <map>
 #include <list>
+#include <iostream>
 #include "./ICache.hpp"
-#include "../../exception/include/CacheE.hpp"
+#include "../../exception/CacheE.hpp"
 
 template <typename K, typename V>
 class LFUCache : public ICache<K, V> {
@@ -16,9 +17,11 @@ public:
   V get(const K& key) override;
   void put(const K& key, const V& value) override;
   V operator[](const K& key) override;
+  void print_cache() override;
+  
   size_t size() const { return map_K_V.size(); }
   int getFrequency(const K& key) const { return map_K_freq.count(key) ? map_K_freq.at(key) : 0; }
-  
+
 private:
   std::map<K, V> map_K_V;
   std::map<K, int> map_K_freq;
@@ -71,6 +74,20 @@ void LFUCache<K, V>::put(const K& key, const V& value) {
 template <typename K, typename V>
 V LFUCache<K, V>::operator[](const K& key) {
   return get(key);
+}
+
+template <typename K, typename V>
+void LFUCache<K, V>::print_cache() {
+  std::cout << "LFU Cache contents:\n";
+  if (map_K_V.empty()) {
+    std::cout << "Cache is empty.\n";
+    return;
+  }
+
+  for (const auto& pair : map_K_V) {
+    std::cout << "Key: " << pair.first << ", Value: " << pair.second
+              << ", Frequency: " << map_K_freq.at(pair.first) << "\n";
+  }
 }
 
 #endif

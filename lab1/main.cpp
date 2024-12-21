@@ -7,12 +7,15 @@
 #include "./src/include/LRUCache.hpp"
 #include "./src/include/ICache.hpp"
 #include "./src/include/Fibonacci.hpp"
+#include "./src/include/RunProgramm.hpp"
 #include "./src/include/ArgumentReader.hpp"
-#include "./exception/include/CacheE.hpp"
+#include "./exception/CacheE.hpp"
 
 int main(int argc, char* argv[]) {
     try {
-
+        RunProgramm programm;
+        programm.run();
+        
     } catch(SmallSizeCacheException& e) {
         std::cerr << e.what() << std::endl;
         return 1;

@@ -3,17 +3,24 @@
 
 #include <memory>
 #include "./ICache.hpp"
+#include "./LFUCache.hpp"
+#include "./LRUCache.hpp"
 
 class Fibonacci {
 public:
+    Fibonacci() = default;
+    void setCache(std::unique_ptr<ICache<int, int>>&& cache) { 
+        this->cache = std::move(cache); 
+    }
+    int calculate(const int& key);
+    void print_cache() { cache->print_cache(); }
+
     int fibNumber;
 
-    Fibonacci(std::unique_ptr<ICache<int, int>> cache) : cache(std::move(cache)) {}
-    int calculate(const int& key);
-
 private:
+    int fib(const int& key);
+
     std::unique_ptr<ICache<int, int>> cache;
-    int fibonacci(const int& n);
 };
 
 #endif

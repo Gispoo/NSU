@@ -1,11 +1,11 @@
 #ifndef READER_H
 #define READER_H
 
-#include <vector>
+#include <string>
 
 class ArgumentReader {
 public:
-    int parse(int argc, char* argv[]);
+    int parse(std::string input);
 };
 
 #endif

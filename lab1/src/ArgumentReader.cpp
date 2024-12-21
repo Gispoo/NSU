@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include "./include/ArgumentReader.hpp"
 
-int ArgumentReader::parse(int argc, char* argv[]) {
+int ArgumentReader::parse(std::string input) {
 
     return 0;
 }

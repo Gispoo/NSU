@@ -3,8 +3,9 @@
 
 #include <map>
 #include <list>
+#include <iostream>
 #include "./ICache.hpp"
-#include "../../exception/include/CacheE.hpp"
+#include "../../exception/CacheE.hpp"
 
 template <typename K, typename V>
 class LRUCache : public ICache<K, V> {
@@ -14,6 +15,7 @@ public:
   V get(const K& key) override;
   void put(const K& key, const V& value) override;
   V operator[](const K& key) override;
+  void print_cache() override;
   
 private:
   std::list<std::pair<K, V>> list_K_V;
@@ -50,6 +52,19 @@ void LRUCache<K, V>::put(const K& key, const V& value) {
 template <typename K, typename V>
 V LRUCache<K, V>::operator[](const K& key) {
   return get(key);
+}
+
+template <typename K, typename V>
+void LRUCache<K, V>::print_cache() {
+  std::cout << "LRU Cache contents:\n";
+  if (list_K_V.empty()) {
+    std::cout << "Cache is empty.\n";
+    return;
+  }
+
+  for (const auto& pair : list_K_V) {
+    std::cout << "Key: " << pair.first << ", Value: " << pair.second << "\n";
+  }
 }
 
 #endif
