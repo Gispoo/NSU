@@ -2,10 +2,11 @@
 #define LFUCACHE_H
 
 #include <map>
+#include <unordered_map>
 #include <list>
 #include <iostream>
 #include "./ICache.hpp"
-#include "../../exception/CacheE.hpp"
+#include "../../exception/CacheException.hpp"
 
 template <typename K, typename V>
 class LFUCache : public ICache<K, V> {
@@ -23,8 +24,8 @@ public:
   int getFrequency(const K& key) const { return map_K_freq.count(key) ? map_K_freq.at(key) : 0; }
 
 private:
-  std::map<K, V> map_K_V;
-  std::map<K, int> map_K_freq;
+  std::unordered_map<K, V> map_K_V;
+  std::unordered_map<K, int> map_K_freq;
   std::map<int, std::list<K>> map_freq_listK;
   size_t capacity;
 };

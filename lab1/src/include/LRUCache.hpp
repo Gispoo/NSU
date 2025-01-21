@@ -2,15 +2,18 @@
 #define LRUCACHE_H
 
 #include <map>
+#include <unordered_map>
 #include <list>
 #include <iostream>
 #include "./ICache.hpp"
-#include "../../exception/CacheE.hpp"
+#include "../../exception/CacheException.hpp"
 
 template <typename K, typename V>
 class LRUCache : public ICache<K, V> {
 public:
-  LRUCache(size_t capacity) : capacity(capacity) {}
+  LRUCache(size_t capacity) : capacity(capacity) {
+    if (capacity < 1) throw SmallSizeCacheException("Cache capacity must be at least 1");
+  }
 
   V get(const K& key) override;
   void put(const K& key, const V& value) override;
@@ -19,7 +22,7 @@ public:
   
 private:
   std::list<std::pair<K, V>> list_K_V;
-  std::map<K, typename std::list<std::pair<K, V>>::iterator> map_K_I;
+  std::unordered_map<K, typename std::list<std::pair<K, V>>::iterator> map_K_I;
   size_t capacity;
 };
 

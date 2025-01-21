@@ -1,5 +1,5 @@
-#ifndef CACHEE_H
-#define CACHEE_H
+#ifndef CACHEEXCEPTION_H
+#define CACHEEXCEPTION_H
 
 #include <stdexcept>
 #include <string>

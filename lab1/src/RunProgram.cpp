@@ -1,35 +1,50 @@
 #include <iostream>
 #include <memory>
 #include <limits>
-#include "./include/RunProgramm.hpp"
+#include <string>
+#include "./include/RunProgram.hpp"
 #include "./include/LRUCache.hpp"
 #include "./include/LFUCache.hpp"
 #include "./include/Fibonacci.hpp"
 
-char RunProgramm::get_action() {
+Action RunProgram::get_action() {
     while (true) {
-        char action;
-        std::cout << messages.message0;
-        std::cin >> action;
+        char user_input;
+        std::cout << messages.menu_action;
+        std::cin >> user_input;
 
-        if (std::cin.fail() || (action != 'E' && action != 'V' && action != 'S')) {
-            std::cout << messages.message00;
+        if (std::cin.fail()) {
+            std::cout << messages.wrong_action;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
+        }
+
+        Action action = Action::INVALID;
+        if(user_input == 'S'){
+           action = Action::SELECT;
+        } else if(user_input == 'E'){
+           action = Action::ENTER;
+        } else if (user_input == 'V'){
+           action = Action::VIEW;
+        }
+
+        if(action == Action::INVALID){
+          std::cout << messages.wrong_action;
+          continue;
         }
 
         return action;
     }
 }
 
-void RunProgramm::get_size_cache() {
+void RunProgram::get_size_cache() {
     while(true) {
-        std::cout << messages.message3;
+        std::cout << messages.enter_cache_size;
         std::cin >> size_cache;
 
         if (std::cin.fail() || size_cache < 1) {
-            std::cout << messages.message4;
+            std::cout << messages.incorret_size;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -39,14 +54,14 @@ void RunProgramm::get_size_cache() {
     }
 }
 
-void RunProgramm::get_type_cache() {
+void RunProgram::get_type_cache() {
     while (true) {
         char type_cache;
-        std::cout << messages.message1;
+        std::cout << messages.cache_selection;
         std::cin >> type_cache;
 
         if (std::cin.fail() || (type_cache != 'R' && type_cache != 'F')) {
-            std::cout << messages.message2;
+            std::cout << messages.invalid_cache_type;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -64,14 +79,14 @@ void RunProgramm::get_type_cache() {
     }
 }
 
-int RunProgramm::get_num() {
+int RunProgram::get_num() {
     while(true) {
         int num;
-        std::cout << messages.message5;
+        std::cout << messages.new_num_fib;
         std::cin >> num;
 
         if (std::cin.fail() || num < 0) {
-            std::cout << messages.message6;
+            std::cout << messages.incorrect_num;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -81,22 +96,22 @@ int RunProgramm::get_num() {
     }
 }
 
-void RunProgramm::run() {
+void RunProgram::run() {
     try {
-        char action = 'S';
+        Action action = Action::SELECT;
         while(true) {
             switch(action) {
-            case 'S':
+            case Action::SELECT:
                 get_size_cache();
                 get_type_cache();
                 Fib.fibNumber = get_num();
-                std::cout << messages.message7 << Fib.calculate(Fib.fibNumber) << std::endl;
+                std::cout << messages.output_num_fib << Fib.calculate(Fib.fibNumber) << std::endl;
                 break;
-            case 'E':
+            case Action::ENTER:
                 Fib.fibNumber = get_num();
-                std::cout << messages.message7 << Fib.calculate(Fib.fibNumber) << std::endl;
+                std::cout << messages.output_num_fib << Fib.calculate(Fib.fibNumber) << std::endl;
                 break;
-            case 'V':
+            case Action::VIEW:
                 Fib.print_cache();
                 break;
             }
