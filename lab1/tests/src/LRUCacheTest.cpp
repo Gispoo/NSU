@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "../../src/include/LRUCache.hpp"
-#include "../../exception/CacheE.hpp"
+#include "../../exception/CacheException.hpp"
 
 TEST(LRUCacheTest, BasicTest) {
   LRUCache<int, int> cache(2);

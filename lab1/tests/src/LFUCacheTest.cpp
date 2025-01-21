@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "../../src/include/LFUCache.hpp"
-#include "../../exception/CacheE.hpp"
+#include "../../exception/CacheException.hpp"
 
 TEST(LFUCacheTest, Get_KeyNotFound) {
   LFUCache<int, int> cache(2);

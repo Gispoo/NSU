@@ -7,7 +7,7 @@ include_directories(src/include exception/)
 
 add_executable(lab1 main.cpp
     src/Fibonacci.cpp
-    src/RunProgramm.cpp
+    src/RunProgram.cpp
 )
 
 add_subdirectory(tests)

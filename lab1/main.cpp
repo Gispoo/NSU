@@ -7,12 +7,12 @@
 #include "./src/include/LRUCache.hpp"
 #include "./src/include/ICache.hpp"
 #include "./src/include/Fibonacci.hpp"
-#include "./src/include/RunProgramm.hpp"
-#include "./exception/CacheE.hpp"
+#include "./src/include/RunProgram.hpp"
+#include "./exception/CacheException.hpp"
 
 int main(int argc, char* argv[]) {
     try {
-        RunProgramm programm;
+        RunProgram programm;
         programm.run();
         
     } catch(SmallSizeCacheException& e) {
