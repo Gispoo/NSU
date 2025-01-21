@@ -13,17 +13,18 @@ enum class Action {
     INVALID
 };
 
-typedef struct MessagList{
-    std::string menu_action = "\nS - select the cache type, E - enter the Fibonacci number, V - view cache\nSelect an action:\n";
-    std::string wrong_action = "Wrong action\n";
-    std::string cache_selection = "Select the cache type: LRU - R, LFU - F\n";
-    std::string invalid_cache_type = "Invalid cache type:\n";
-    std::string enter_cache_size = "Enter the cache size:\n";
-    std::string incorret_size = "The size is incorrect:\n";
-    std::string new_num_fib = "Enter the number of the Fibonacci number:\n";
-    std::string incorrect_num = "The number is incorrect:\n";
-    std::string output_num_fib = "The Fibonacci number under the number ";
-} MessagList;
+class MessageConsts {
+public:
+    static const std::string MENU_ACTION;
+    static const std::string WRONG_ACTION;
+    static const std::string CACHE_SELECTION;
+    static const std::string INVALID_CACHE_TYPE;
+    static const std::string ENTER_CACHE_SIZE;
+    static const std::string INCORRECT_SIZE;
+    static const std::string NEW_NUM_FIB;
+    static const std::string INCORRECT_NUM;
+    static const std::string OUTPUT_NUM_FIB;
+};
 
 class RunProgram {
 public:
@@ -35,7 +36,7 @@ private:
     void get_type_cache();
     int get_num();
 
-    MessagList messages;
+    MessageConsts messages;
     Fibonacci Fib;
     int size_cache; 
 };

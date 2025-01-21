@@ -7,14 +7,25 @@
 #include "./include/LFUCache.hpp"
 #include "./include/Fibonacci.hpp"
 
+const std::string MessageConsts::MENU_ACTION = "\nS - select the cache type, E - enter the Fibonacci number, V - view cache\nSelect an action:\n";
+const std::string MessageConsts::WRONG_ACTION = "Wrong action\n";
+const std::string MessageConsts::CACHE_SELECTION = "Select the cache type: LRU - R, LFU - F\n";
+const std::string MessageConsts::INVALID_CACHE_TYPE = "Invalid cache type:\n";
+const std::string MessageConsts::ENTER_CACHE_SIZE = "Enter the cache size:\n";
+const std::string MessageConsts::INCORRECT_SIZE = "The size is incorrect:\n";
+const std::string MessageConsts::NEW_NUM_FIB = "Enter the number of the Fibonacci number:\n";
+const std::string MessageConsts::INCORRECT_NUM = "The number is incorrect:\n";
+const std::string MessageConsts::OUTPUT_NUM_FIB = "The Fibonacci number under the number ";
+
+
 Action RunProgram::get_action() {
     while (true) {
         char user_input;
-        std::cout << messages.menu_action;
+        std::cout << messages.MENU_ACTION;
         std::cin >> user_input;
 
         if (std::cin.fail()) {
-            std::cout << messages.wrong_action;
+            std::cout << messages.WRONG_ACTION;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -30,7 +41,7 @@ Action RunProgram::get_action() {
         }
 
         if(action == Action::INVALID){
-          std::cout << messages.wrong_action;
+          std::cout << messages.WRONG_ACTION;
           continue;
         }
 
@@ -40,11 +51,11 @@ Action RunProgram::get_action() {
 
 void RunProgram::get_size_cache() {
     while(true) {
-        std::cout << messages.enter_cache_size;
+        std::cout << messages.ENTER_CACHE_SIZE;
         std::cin >> size_cache;
 
         if (std::cin.fail() || size_cache < 1) {
-            std::cout << messages.incorret_size;
+            std::cout << messages.INCORRECT_SIZE;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -57,11 +68,11 @@ void RunProgram::get_size_cache() {
 void RunProgram::get_type_cache() {
     while (true) {
         char type_cache;
-        std::cout << messages.cache_selection;
+        std::cout << messages.CACHE_SELECTION;
         std::cin >> type_cache;
 
         if (std::cin.fail() || (type_cache != 'R' && type_cache != 'F')) {
-            std::cout << messages.invalid_cache_type;
+            std::cout << messages.INVALID_CACHE_TYPE;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -82,11 +93,11 @@ void RunProgram::get_type_cache() {
 int RunProgram::get_num() {
     while(true) {
         int num;
-        std::cout << messages.new_num_fib;
+        std::cout << messages.NEW_NUM_FIB;
         std::cin >> num;
 
         if (std::cin.fail() || num < 0) {
-            std::cout << messages.incorrect_num;
+            std::cout << messages.INCORRECT_NUM;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -105,11 +116,11 @@ void RunProgram::run() {
                 get_size_cache();
                 get_type_cache();
                 Fib.fibNumber = get_num();
-                std::cout << messages.output_num_fib << Fib.calculate(Fib.fibNumber) << std::endl;
+                std::cout << messages.OUTPUT_NUM_FIB << Fib.calculate(Fib.fibNumber) << std::endl;
                 break;
             case Action::ENTER:
                 Fib.fibNumber = get_num();
-                std::cout << messages.output_num_fib << Fib.calculate(Fib.fibNumber) << std::endl;
+                std::cout << messages.OUTPUT_NUM_FIB << Fib.calculate(Fib.fibNumber) << std::endl;
                 break;
             case Action::VIEW:
                 Fib.print_cache();
