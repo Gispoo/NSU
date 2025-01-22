@@ -10,7 +10,7 @@ add_executable(Nonogram main.cpp
     src/grid.cpp
     src/nonogram.cpp
     src/game.cpp
-    src/RumProgamm.cpp
+    src/RunProgram.cpp
 )
 
 target_include_directories(Nonogram PRIVATE include)
