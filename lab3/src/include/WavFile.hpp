@@ -9,7 +9,7 @@
 class WavFile {
 public:
     WavFile(const std::string& filename);
-    ~WavFile();
+    ~WavFile() {}
 
     bool isValid() const;
     int getSampleRate() const;
@@ -36,6 +36,7 @@ private:
     } header;
 
     std::string filename;
+    std::ifstream file;
     std::vector<int16_t> samples;
     bool valid = false;
 

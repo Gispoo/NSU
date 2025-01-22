@@ -1,11 +1,10 @@
 #include "./include/WavFile.hpp"
-
 #include <iostream>
 #include <fstream>
 #include <cstring>
 
-WavFile::WavFile(const std::string& filename) : filename(filename) {
-    std::ifstream file(filename, std::ios::binary);
+WavFile::WavFile(const std::string& filename) : filename(filename), 
+    file(filename, std::ios::binary) {
     if (!file.is_open()) {
         std::cerr << "Error: Could not open file " << filename << std::endl;
         return;
@@ -22,8 +21,6 @@ WavFile::WavFile(const std::string& filename) : filename(filename) {
     }
     valid = true;
 }
-
-WavFile::~WavFile() {}
 
 bool WavFile::isValid() const {
     return valid;
@@ -46,10 +43,6 @@ std::vector<int16_t> WavFile::getSamples() const {
 }
 
 bool WavFile::parseHeader() {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file.is_open()) {
-        return false;
-    }
     file.read(reinterpret_cast<char*>(&header), sizeof(header));
 
     if (std::strncmp(header.chunkId, "RIFF", 4) != 0 ||
@@ -63,10 +56,6 @@ bool WavFile::parseHeader() {
 }
 
 bool WavFile::readData() {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file.is_open()) {
-        return false;
-    }
     file.seekg(sizeof(header), std::ios::beg);
 
     int numSamples = header.subChunk2Size / (header.bitsPerSample / 8);

@@ -1,6 +1,5 @@
 #include "./include/Menu.hpp"
 #include "./include/WavFile.hpp"
-#include "./include/ConfigParser.hpp"
 #include "./include/Converter.hpp"
 #include "./include/MixerConverter.hpp"
 #include <iostream>
@@ -37,24 +36,16 @@ void Menu::showMenu() {
 
 void Menu::processFile() {
     std::string inputFilename;
-    std::string configFilename;
     std::string outputFilename;
 
     std::cout << "Enter input WAV filename: ";
     std::cin >> inputFilename;
-    std::cout << "Enter config filename: ";
-    std::cin >> configFilename;
     std::cout << "Enter output WAV filename: ";
     std::cin >> outputFilename;
     
     WavFile wavFile(inputFilename);
     if (!wavFile.isValid()) {
         std::cout << "Error loading input file\n";
-        return;
-    }
-    ConfigParser configParser(configFilename);
-    if (!configParser.isValid()) {
-        std::cout << "Error loading config file\n";
         return;
     }
 
@@ -80,7 +71,7 @@ void Menu::processFile() {
         }
     }
 
-    if (wavFile.save(outputFilename,samples)) {
+    if (wavFile.save(outputFilename, samples)) {
         std::cout << "File succesfuly processed" << std::endl;
     } else {
         std::cout << "Error when saving" << std::endl;
