@@ -3,36 +3,30 @@
 
 #include "./nonogram.hpp"
 #include "./grid.hpp"
-#include "raylib.h"
+#include "./config.h"
 #include <string>
+#include <filesystem>
 
 class Game {
 public:
-    // Конструктор
-    Game(const std::string& filePath, int screenWidth, int screenHeight);
+    Game() : is_game_running(false) {}
+    Game(std::filesystem::path filePath);
 
-    // Основной игровой цикл
-    void runGame();
-
-    // Отрисовка игрового поля
+    void run_game();
     void draw() const;
-
-    // Обработка ввода пользователя
-    void handleInput();
-
-    // Сброс игры к начальному состоянию (новая сетка)
-    void resetGame();
-
-    // Проверка решен ли кроссворд
-    void checkSolution();
+    void handle_input();
+    void check_solution();
     
+    bool is_game_running;
+    bool is_win = false;
 private:
-    Grid grid;               // Сетка для игрового поля
-    bool isGameRunning;      // Флаг, что игра запущена
-    int screenWidth;
-    int screenHeight;
-    Nonogram level1;         // Уровень 1
-    Nonogram level2;         // Уровень 2
+    int screen_width = SCREEN_WIDTH;
+    int screen_height = SCREEN_HEIGHT;
+    Nonogram current_level;
+    int rows;
+    int cols;
+    Nonogram user_puzzle;
+    Grid grid;
 };
 
 #endif

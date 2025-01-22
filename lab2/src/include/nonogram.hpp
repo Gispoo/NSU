@@ -3,20 +3,21 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 class Nonogram {
 public:
-    // Конструктор, загружающий кроссворд из файла
-    Nonogram(const std::string& filePath);
+    Nonogram(std::filesystem::path filePath);
+    Nonogram(int rows, int cols);
+    Nonogram() = default;
 
-    // Проверяет решен ли кроссворд
-    bool isSolved(const std::vector<std::vector<int>>& userGrid) const;
+    bool is_solved(Nonogram nonogram) const;
 
-    int rows;                      // Количество строк
-    int cols;                      // Количество столбцов
-    std::vector<std::vector<int>> rowClues; // Подсказки для строк
-    std::vector<std::vector<int>> colClues; // Подсказки для столбцов
-    std::vector<std::vector<int>> solution; // Правильное решение кроссворда
+    int rows;
+    int cols;
+    std::vector<std::vector<int>> row_clues;
+    std::vector<std::vector<int>> col_clues;
+    std::vector<std::vector<int>> solution;
 };
 
 #endif

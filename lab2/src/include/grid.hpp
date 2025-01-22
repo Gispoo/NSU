@@ -1,42 +1,31 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include "./raylib.h"
 #include "./nonogram.hpp"
+#include "./config.h"
 #include <vector>
-#include <raylib.h>
 
 class Grid {
 public:
-    // Конструктор
-    Grid(const std::string& filePath, int cellSize, int screenWidth, int screenHeight);
+    Grid(int rows, int cols);
+    Grid() = default;
 
-    void DrawCross(int x, int y, int size, Color color) const;
-
-    // Рисует сетку на экране
+    void draw_cross(int x, int y, int size, Color color) const;
     void draw() const;
-
-    void drawClue() const;
-
-    // Устанавливает состояние ячейки
-    void setStateCell(int row, int col, int state);
-
-    // Возвращает состояние ячейки
-    int getStateCell(int row, int col) const;
-
-    // Возвращает индексы ячейки, на которую нажал пользователь, по координатам мыши
-    bool getCellFromMousePos(int mouseX, int mouseY, int &row, int &col) const;
-
-    // Сбрасывает сетку к начальному состоянию
-    void resetGrid();
-    
-    Nonogram userPuzzle; // Кроссворд игрока
+    void draw_clue(std::vector<std::vector<int>> row_clues, std::vector<std::vector<int>> colClues) const;
+    void set_state_cell(int row, int col, int state);
+    int get_state_cell(int row, int col) const;
+    bool get_cell_from_mouse_pos(int mouseX, int mouseY, int &row, int &col) const;
 
 private:
-    int cellSize;      // Размер ячейки
-    int leftBordGrid;
-    int upBordGrid;
-    std::vector<std::vector<int>> cells; // Состояние ячеек
-    int fontSize = 30;
+    int rows;
+    int cols;
+    int cell_size;
+    int left_bord_grid;
+    int up_bord_grid;
+    std::vector<std::vector<int>> state_cells;
+    int font_size = FONT_SIZE;
 };
 
 #endif

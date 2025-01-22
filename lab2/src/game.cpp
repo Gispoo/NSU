@@ -1,27 +1,25 @@
-#include "./include/game.hpp"
 #include "raylib.h"
+#include "./include/game.hpp"
+#include "./include/config.h"
 #include <iostream>
+#include <filesystem>
 
-Game::Game(const std::string& filePath, int screenWidth, int screenHeight)
-    : screenWidth(screenWidth), screenHeight(screenHeight),
-    level1("nonograms/Snowflake.txt"), level2("nonograms/Rook.txt"),
-    isGameRunning(true),
-    grid(filePath, 30, screenWidth, screenHeight) {}
+Game::Game(std::filesystem::path filePath) : 
+    is_game_running(true),
+    current_level(filePath),
+    rows(current_level.rows),
+    cols(current_level.cols),
+    user_puzzle(rows, cols),
+    grid(rows, cols) {}
 
-
-void Game::runGame() {
-    while (isGameRunning) {
-        // Обработка ввода
-        handleInput();
-
-        // Проверка решения
-        checkSolution();
-
-        // Отрисовка
+void Game::run_game() {
+    while (is_game_running) {
+        handle_input();
+        check_solution();
         draw();
         
         if (WindowShouldClose()) {
-            isGameRunning = false;
+            is_game_running = false;
         }
     }
 }
@@ -30,63 +28,45 @@ void Game::draw() const {
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
-    // Отрисовка сетки
     grid.draw();
-
-    // Отрисовка подсказок
-    grid.drawClue();
+    grid.draw_clue(current_level.row_clues, current_level.col_clues);
 
     // Отрисовка сообщения о победе
-    // if (isSolved()) {
+    // if (is_win) {
     //     DrawText("You Win!", );
     // }
 
     EndDrawing();
 }
 
-void Game::handleInput() {
+void Game::handle_input() {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
         int row, col;
-        if(grid.getCellFromMousePos((int)mousePos.x, (int)mousePos.y, row, col)) {
-            grid.setStateCell(row, col, (grid.getStateCell(row, col) + 1) % 2);
+        if (grid.get_cell_from_mouse_pos((int)mousePos.x, (int)mousePos.y, row, col)) {
+            grid.set_state_cell(row, col, (grid.get_state_cell(row, col) + 1) % 2);
         }
     } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
         Vector2 mousePos = GetMousePosition();
         int row, col; 
-        if(grid.getCellFromMousePos((int)mousePos.x, (int)mousePos.y, row, col)) {
-            int currentState = grid.getStateCell(row, col);
+        if (grid.get_cell_from_mouse_pos((int)mousePos.x, (int)mousePos.y, row, col)) {
+            int currentState = grid.get_state_cell(row, col);
             int newState;
 
-            if(currentState == 0 || currentState == 1) { // Белая или черная -> серая
+            if (currentState == 0 || currentState == 1) {
                 newState = 2;
-            } else { // Серая -> белая
+            } else {
                 newState = 0;
             }
-            grid.setStateCell(row, col, newState);
+            grid.set_state_cell(row, col, newState);
         }
     }
 }
 
-void Game::resetGame() {
-    grid.resetGrid(); // Сбрасываем сетку
-}
-
-void Game::checkSolution() {
-    int rows = grid.userPuzzle.rows;
-    int cols = grid.userPuzzle.cols;
-    std::vector<std::vector<int>> userGrid(rows, std::vector<int>(cols));
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            userGrid[i][j] = grid.getStateCell(i, j);
-        }
-    }
-
-    if(grid.userPuzzle.isSolved(userGrid)) {
-        std::cout << "Solved!" << std::endl; // TODO: Implement proper win screen
-        isGameRunning = false;
-    } else {
-            //std::cout << "Not solved" << std::endl;
+void Game::check_solution() {
+    if (user_puzzle.is_solved(current_level)) {
+        is_win = true;
+        is_game_running = false;
     }
 }
 

@@ -1,33 +1,34 @@
-#include "./include/grid.hpp"
 #include "raylib.h"
+#include "./include/grid.hpp"
+#include "./include/config.h"
+#include <iostream>
+#include <algorithm>
+#include <iterator>
 
-Grid::Grid(const std::string& filePath, int cellSize, int screenWidth, int screenHeight) :
-    userPuzzle(filePath), 
-    cellSize(cellSize), 
-    cells(userPuzzle.rows, std::vector<int>(userPuzzle.cols, 0)),
-    leftBordGrid(screenWidth / 2 - cellSize * userPuzzle.cols / 2),
-    upBordGrid(screenHeight / 2 - cellSize * userPuzzle.rows / 2) {}
+Grid::Grid(int rows, int cols) :
+    rows(rows),
+    cols(cols),
+    cell_size(CELL_SIZE), 
+    left_bord_grid(SCREEN_WIDTH / 2 - cell_size * cols / 2),
+    up_bord_grid(SCREEN_HEIGHT / 2 - cell_size * rows / 2),
+    state_cells(rows, std::vector<int>(cols, 0)) {}
 
-
-void Grid::DrawCross(int x, int y, int size, Color color) const {
+void Grid::draw_cross(int x, int y, int size, Color color) const {
     int halfSize = size / 2;
 
-    // Рисуем первую диагональную линию
     DrawLine(x - halfSize, y - halfSize, x + halfSize, y + halfSize, color);
-
-    // Рисуем вторую диагональную линию
     DrawLine(x + halfSize, y - halfSize, x - halfSize, y + halfSize, color);
 }
 
 void Grid::draw() const {
-    for (int i = 0; i < userPuzzle.rows; ++i) {
-        for (int j = 0; j < userPuzzle.cols; ++j) {
-            int x = j * cellSize + leftBordGrid;
-            int y = i * cellSize + upBordGrid;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            int x = j * cell_size + left_bord_grid;
+            int y = i * cell_size + up_bord_grid;
             
             Color cellColor;
 
-            switch (cells[i][j]) {
+            switch (state_cells[i][j]) {
             case 0:
                 cellColor = WHITE;
                 break;
@@ -35,76 +36,68 @@ void Grid::draw() const {
                 cellColor = BLACK;
                 break;
             default:
-                DrawCross(x + cellSize / 2, y + cellSize / 2, cellSize, GRAY);
-                DrawRectangleLines(x, y, cellSize, cellSize, DARKGRAY);
+                draw_cross(x + cell_size / 2, y + cell_size / 2, cell_size, GRAY);
+                DrawRectangleLines(x, y, cell_size, cell_size, DARKGRAY);
                 continue;
                 break;
             }
-            DrawRectangle(x, y, cellSize, cellSize, cellColor);
-            DrawRectangleLines(x, y, cellSize, cellSize, DARKGRAY);
+            DrawRectangle(x, y, cell_size, cell_size, cellColor);
+            DrawRectangleLines(x, y, cell_size, cell_size, DARKGRAY);
         }
     }
 }
 
-void Grid::drawClue() const {
-    for (size_t i = 0; i < userPuzzle.rowClues.size(); ++i) {
-        int numClues = userPuzzle.rowClues[i].size();
-        int yPos = upBordGrid + i * cellSize + 2;
+void Grid::draw_clue(std::vector<std::vector<int>> row_clues, std::vector<std::vector<int>> col_clues) const {
+    for (size_t i = 0; i < row_clues.size(); ++i) {
+        int numClues = row_clues[i].size();
+        int yPos = up_bord_grid + i * cell_size + 2;
 
         std::string clueString;
         for(size_t j = 0; j < numClues; ++j) {
-            clueString += std::to_string(userPuzzle.rowClues[i][j]) + " ";
+            clueString += std::to_string(row_clues[i][j]) + " ";
         }
 
-        int textWidth = MeasureText(clueString.c_str(), fontSize);
-        int xPos = leftBordGrid - textWidth;
+        int textWidth = MeasureText(clueString.c_str(), font_size);
+        int xPos = left_bord_grid - textWidth;
 
-        DrawText(clueString.c_str(), xPos, yPos, fontSize, BLACK);
+        DrawText(clueString.c_str(), xPos, yPos, font_size, BLACK);
     }
-    for (int i = 0; i < userPuzzle.cols; ++i) {
-        int numClues = userPuzzle.colClues[i].size();
-        int xPos = leftBordGrid + (i + 0.35) * cellSize;
+    for (int i = 0; i < cols; ++i) {
+        int numClues = col_clues[i].size();
+        int xPos = left_bord_grid + (i + 0.35) * cell_size;
 
         std::string clueString;
         for(int j = 0; j < numClues; ++j) {
-            clueString += std::to_string(userPuzzle.colClues[i][j]) + "\n";
+            clueString += std::to_string(col_clues[i][j]) + "\n";
         }
 
-        int yPos = upBordGrid - fontSize * numClues - 2;
+        int yPos = up_bord_grid - font_size * numClues - 2;
 
-        DrawText(clueString.c_str(), xPos, yPos, fontSize, BLACK);
-    }    
-}
-
-void Grid::setStateCell(int row, int col, int state) {
-    if(row >= 0 && row < userPuzzle.rows && col >= 0 && col < userPuzzle.cols) {
-        cells[row][col] = state;
+        DrawText(clueString.c_str(), xPos, yPos, font_size, BLACK);
     }
 }
 
-int Grid::getStateCell(int row, int col) const {
-    if(row >= 0 && row < userPuzzle.rows && col >= 0 && col < userPuzzle.cols) {
-        return cells[row][col];
+void Grid::set_state_cell(int row, int col, int state) {
+    if(row >= 0 && row < rows && col >= 0 && col < cols) {
+        state_cells[row][col] = state;
+    }
+}
+
+int Grid::get_state_cell(int row, int col) const {
+    if(row >= 0 && row < rows && col >= 0 && col < cols) {
+        return state_cells[row][col];
     }
     return -1;
 }
 
-bool Grid::getCellFromMousePos(int mouseX, int mouseY, int &row, int &col) const {
-    bool xInside = mouseX >= leftBordGrid && mouseX < leftBordGrid + userPuzzle.cols * cellSize;
-    bool yInside = mouseY >= upBordGrid && mouseY < upBordGrid + userPuzzle.rows * cellSize;
+bool Grid::get_cell_from_mouse_pos(int mouseX, int mouseY, int &row, int &col) const {
+    bool xInside = mouseX >= left_bord_grid && mouseX < left_bord_grid + cols * cell_size;
+    bool yInside = mouseY >= up_bord_grid && mouseY < up_bord_grid + rows * cell_size;
 
     if(xInside && yInside) {
-        col = (mouseX - leftBordGrid) / cellSize;
-        row = (mouseY - upBordGrid) / cellSize;
+        col = (mouseX - left_bord_grid) / cell_size;
+        row = (mouseY - up_bord_grid) / cell_size;
         return true;
     }
     return false;
-}
-
-void Grid::resetGrid() {
-    for(int i = 0; i < userPuzzle.rows; ++i){
-        for(int j = 0; j < userPuzzle.cols; ++j){
-            cells[i][j] = 0;
-        }
-    }
 }
