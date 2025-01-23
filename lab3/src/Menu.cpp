@@ -1,79 +1,104 @@
 #include "./include/Menu.hpp"
 #include "./include/WavFile.hpp"
-#include "./include/Converter.hpp"
 #include "./include/MixerConverter.hpp"
+#include "./include/SilenceConverter.hpp"
 #include <iostream>
 #include <limits>
 #include <memory>
 
+const std::string MessageConsts::INPUT_FILENAME = "Enter input WAV filename:\n";
+const std::string MessageConsts::OUTPUT_FILENAME = "Enter output WAV filename:\n";
+const std::string MessageConsts::MENU_ACTION = "\nM - Mute files, A - Add files\n";
+const std::string MessageConsts::WRONG_ACTION = "Wrong action\n";
+const std::string MessageConsts::TIME_INTERVAL = "Enter the time interval\n";
+const std::string MessageConsts::INVALID_TIME_INTERVAL = "Invalid time interval:\n";
+const std::string MessageConsts::NAME_FILE_FOR_MIX = "Enter the file name for addition:\n";
+const std::string MessageConsts::INCORRECT_NAME = "The name is incorrect:\n";
+
 void Menu::run() {
     while (true) {
-        showMenu();
+        std::cout << "\nSound Processor\n";
+        std::cout << "1. Mute Fragment\n";
+        std::cout << "2. Mix Fragment\n";
+        std::cout << "3. Exit\n";
+        std::cout << "Choose an action: ";
+
         int choice;
         std::cin >> choice;
 
         switch (choice) {
-        case 1:
-            processFile();
-            break;
-        case 0:
-            std::cout << "Exiting...\n";
-            return;
-        default:
-            std::cout << "Invalid choice, try again.\n";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            case 1:
+                muteFragment();
+                break;
+            case 2:
+                mixFragment();
+                break;
+            case 3:
+                return;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
         }
     }
 }
 
-void Menu::showMenu() {
-    std::cout << "\nSound Processor Menu\n";
-    std::cout << "1. Process WAV file\n";
-    std::cout << "0. Exit\n";
-    std::cout << "Enter your choice: ";
-}
+void Menu::muteFragment() {
+    std::string inputFile, outputFile;
+    double startSecond, endSecond;
 
-void Menu::processFile() {
-    std::string inputFilename;
-    std::string outputFilename;
+    std::cout << "Enter input file name: ";
+    std::cin >> inputFile;
+    std::cout << "Enter output file name: ";
+    std::cin >> outputFile;
+    std::cout << "Enter start second for muting: ";
+    std::cin >> startSecond;
+    std::cout << "Enter end second for muting: ";
+    std::cin >> endSecond;
 
-    std::cout << "Enter input WAV filename: ";
-    std::cin >> inputFilename;
-    std::cout << "Enter output WAV filename: ";
-    std::cin >> outputFilename;
-    
-    WavFile wavFile(inputFilename);
-    if (!wavFile.isValid()) {
-        std::cout << "Error loading input file\n";
-        return;
-    }
-
-    std::vector<std::unique_ptr<Converter>> converters = configParser.parseConfig();
-    std::vector<int16_t> samples = wavFile.getSamples();
-
-    for (const auto& converter : converters) {
-        if (auto mixer = dynamic_cast<MixerConverter*>(converter.get())) {
-            std::string mixFilename;
-            std::cout << "Enter mix file name (if need): ";
-            std::cin >> mixFilename;
-            try {
-                mixer->setMixFile(mixFilename);
+    WavFile wavFile;
+    if (wavFile.read(inputFile)) {
+            SilenceConverter silenceConverter;
+        if (silenceConverter.mute(wavFile, startSecond, endSecond)) {
+            if (wavFile.write(outputFile)) {
+                std::cout << "Fragment muted successfully.\n";
+            } else {
+                std::cout << "Error writing file.\n";
             }
-            catch (const std::runtime_error& e) {
-                std::cerr << "Error: " << e.what() << std::endl;
-            }
+        } else {
+            std::cout << "Failed to mute the fragment.\n";
         }
-        try {
-            samples = converter->process(samples);
-        } catch (const std::runtime_error& e) {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    if (wavFile.save(outputFilename, samples)) {
-        std::cout << "File succesfuly processed" << std::endl;
     } else {
-        std::cout << "Error when saving" << std::endl;
+        std::cout << "Failed to read the file.\n";
+    }
+}
+
+void Menu::mixFragment() {
+    std::string inputFile1, inputFile2, outputFile;
+    double startSecond, endSecond;
+
+    std::cout << "Enter the first input file name: ";
+    std::cin >> inputFile1;
+    std::cout << "Enter the second input file name: ";
+    std::cin >> inputFile2;
+    std::cout << "Enter output file name: ";
+    std::cin >> outputFile;
+    std::cout << "Enter start second for mixing: ";
+    std::cin >> startSecond;
+    std::cout << "Enter end second for mixing: ";
+    std::cin >> endSecond;
+    
+    WavFile wavFile1, wavFile2;
+    if (wavFile1.read(inputFile1) && wavFile2.read(inputFile2)) {
+        MixerConverter mixerConverter;
+        if (mixerConverter.mix(wavFile1, wavFile2, startSecond, endSecond)) {
+            if (wavFile1.write(outputFile)) {
+                std::cout << "Fragments mixed successfully.\n";
+            } else {
+                std::cout << "Error writing file.\n";
+            }
+        } else {
+            std::cout << "Failed to mix the fragments.\n";
+        }
+    } else {
+        std::cout << "Failed to read one of the files.\n";
     }
 }

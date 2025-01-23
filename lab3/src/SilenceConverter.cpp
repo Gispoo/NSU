@@ -1,40 +1,30 @@
 #include "./include/SilenceConverter.hpp"
+#include "./include/WavFile.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
 
-SilenceConverter::SilenceConverter() {}
-
-void SilenceConverter::setParameters(const std::vector<std::string>& params) {
-    if (params.size() != 2) {
-        throw std::runtime_error("SilenceConverter: Requires two parameters: start_time and end_time.");
+bool SilenceConverter::mute(WavFile& wavFile, double startSecond, double endSecond) {
+    if (startSecond < 0 || endSecond > (double)(wavFile.data.size() / (wavFile.header.bitsPerSample/8) / wavFile.header.numberOfChanels) / wavFile.header.sampleRate || startSecond >= endSecond) {
+        std::cerr << "Invalid mute range." << std::endl;
+        return false;
     }
 
-    try {
-        startSec = std::stod(params[0]);
-        endSec = std::stod(params[1]);
+    int bytesPerSample = wavFile.header.bitsPerSample / 8;
+    int numberOfChanels = wavFile.header.numberOfChanels;
+    int startSample = static_cast<int>(startSecond * wavFile.header.sampleRate);
+    int endSample = static_cast<int>(endSecond * wavFile.header.sampleRate);
+    int startByte = startSample * bytesPerSample * numberOfChanels;
+    int endByte = endSample * bytesPerSample * numberOfChanels;
+    
+    if (startByte > wavFile.data.size() || endByte > wavFile.data.size()) {
+        std::cerr << "Invalid mute range." << std::endl;
+        return false;
     }
-    catch (const std::invalid_argument& e) {
-        throw std::runtime_error("SilenceConverter: Invalid format of arguments. Start time and end time must be numbers");
-    }
-
-    if (startSec < 0 || endSec < 0 || startSec > endSec) {
-        throw std::runtime_error("SilenceConverter: Invalid values of arguments. Start and end time must be positive numbers where start time < end time");
-    }
-}
-
-std::vector<int16_t> SilenceConverter::process(const std::vector<int16_t>& input) {
-    if (startSec < 0 || endSec < 0 ) {
-          return input;
+        
+    for (int i = startByte; i < endByte; i++) {
+        wavFile.data[i] = 0;
     }
     
-    int sampleRate = 44100;
-    int startSample = static_cast<int>(startSec * sampleRate);
-    int endSample = static_cast<int>(endSec * sampleRate);
-
-    std::vector<int16_t> output = input;
-    for (int i = startSample; i < endSample && i < output.size(); ++i) {
-        output[i] = 0;
-    }
-    return output;
+    return true;
 }

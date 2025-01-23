@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(src/include src/exception)
 
 add_executable(lab3 main.cpp
-    src/ConverterFactory.cpp
-    src/CustomConverter.cpp
     src/Menu.cpp
     src/MixerConverter.cpp
     src/SilenceConverter.cpp

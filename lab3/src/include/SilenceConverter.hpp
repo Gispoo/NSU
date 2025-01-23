@@ -1,20 +1,13 @@
 #ifndef SILENCECONVERTER_H
 #define SILENCECONVERTER_H
 
-#include "Converter.hpp"
+#include "./WavFile.hpp"
 #include <vector>
 #include <cstdint>
 
-class SilenceConverter : public Converter {
+class SilenceConverter {
 public:
-    SilenceConverter();
-    ~SilenceConverter() override = default;
-    std::vector<int16_t> process(const std::vector<int16_t>& input) override;
-    void setParameters(const std::vector<std::string>& params) override;
-private:
-    double startSec = 0;
-    double endSec = 0;
-
+    bool mute(WavFile& wavFile, double startSecond, double endSecond);
 };
 
 #endif
