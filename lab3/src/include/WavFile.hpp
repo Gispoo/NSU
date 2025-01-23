@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <iostream>
 
-struct WAVHeader {
+struct WavHeader {
     int RIFFId;
     int chunkDataSize;
     int WAVEId;
@@ -26,7 +26,7 @@ struct WAVHeader {
 
 class WavFile {
 public:
-    WAVHeader header;
+    WavHeader header;
     std::vector<char> data;
 
     bool read(const std::string& filename);

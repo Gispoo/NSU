@@ -1,13 +1,15 @@
 #include "./include/SilenceConverter.hpp"
 #include "./include/WavFile.hpp"
+#include "./exception/include/SilenceConverterException.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
 
 bool SilenceConverter::mute(WavFile& wavFile, double startSecond, double endSecond) {
-    if (startSecond < 0 || endSecond > (double)(wavFile.data.size() / (wavFile.header.bitsPerSample/8) / wavFile.header.numberOfChanels) / wavFile.header.sampleRate || startSecond >= endSecond) {
-        std::cerr << "Invalid mute range." << std::endl;
-        return false;
+    if (startSecond < 0 
+    || endSecond > (double)(wavFile.data.size() / (wavFile.header.bitsPerSample / 8) / wavFile.header.numberOfChanels) / wavFile.header.sampleRate 
+    || startSecond >= endSecond) {
+        throw SilenceConverterException::InvalidMuteRange();
     }
 
     int bytesPerSample = wavFile.header.bitsPerSample / 8;
@@ -18,13 +20,12 @@ bool SilenceConverter::mute(WavFile& wavFile, double startSecond, double endSeco
     int endByte = endSample * bytesPerSample * numberOfChanels;
     
     if (startByte > wavFile.data.size() || endByte > wavFile.data.size()) {
-        std::cerr << "Invalid mute range." << std::endl;
-        return false;
+        throw SilenceConverterException::InvalidMuteRange();
     }
         
     for (int i = startByte; i < endByte; i++) {
         wavFile.data[i] = 0;
     }
-    
+
     return true;
 }

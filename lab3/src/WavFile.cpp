@@ -1,4 +1,6 @@
 #include "./include/WavFile.hpp"
+#include "./include/config.hpp"
+#include "./exception/include/WavFileException.hpp"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -6,27 +8,19 @@
 bool WavFile::read(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return false;
+        throw WavFileException::fileOpenError(filename);
     }
 
-    // Read header
     file.read(reinterpret_cast<char*>(&header), sizeof(header));
     
-    
-    // Header validation check (optional)
-    if (header.RIFFId != 0x46464952 || header.WAVEId != 0x45564157 || header.FMTId != 0x20746D66 ) {
-        std::cerr << "Invalid WAV file format." << std::endl;
+    if (header.RIFFId != RIFF || header.WAVEId != WAVE || header.FMTId != FMT) {
         file.close();
-        return false;
+        throw WavFileException::invalidFormatError();
     }
 
-    // Calculate data size
-    int dataSize = header.chunkDataSize - 36;
+    int dataSize = header.chunkDataSize - SIZE_TITLE;
     data.resize(dataSize);
-    
-    
-    // Read data
+
     file.read(data.data(), dataSize);
 
     file.close();
@@ -35,15 +29,12 @@ bool WavFile::read(const std::string& filename) {
 
 bool WavFile::write(const std::string& filename) {
     std::ofstream file(filename, std::ios::binary);
-        if (!file.is_open()) {
-            std::cerr << "Error creating file: " << filename << std::endl;
-            return false;
-        }
+    if (!file.is_open()) {
+        throw WavFileException::fileWriteError(filename);
+    }
 
-    // Write header
     file.write(reinterpret_cast<char*>(&header), sizeof(header));
 
-    // Write data
     file.write(data.data(), data.size());
     file.close();
     return true;
