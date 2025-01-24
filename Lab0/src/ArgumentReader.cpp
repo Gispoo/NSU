@@ -1,13 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include "./include/Reader.hpp" 
+#include "./include/ArgumentReader.hpp" 
 
-Reader::Reader(std::string input_file) {
+ArgumentReader::ArgumentReader(std::string input_file) {
     name_input_file = input_file;
 }
 
-void Reader::open_input_file() {
+void ArgumentReader::open_input_file() {
     input_file.open(name_input_file);
 
     if (!input_file.is_open()) {
@@ -17,6 +17,6 @@ void Reader::open_input_file() {
     std::cout << "The input file has opened successfully\n";
 }
 
-Reader::~Reader() {
+ArgumentReader::~ArgumentReader() {
     input_file.close();
 }
