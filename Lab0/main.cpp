@@ -21,11 +21,11 @@ int main(int argc, char* argv[]) {
         checking_input(argc);
 
         ArgumentReader reader(argv[1]);
-        ArgumentReader.open_input_file();
+        reader.open_input_file();
 
         CounterWord couter_word;
         couter_word.count_word(reader.input_file);
-        ArgumentReader.input_file.close();
+        reader.input_file.close();
 
         Sorter sorter;
         sorter.sort_dictionary(couter_word.dictionary);
