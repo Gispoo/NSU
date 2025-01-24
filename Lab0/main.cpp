@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include "./src/include/CounterWord.hpp"
 #include "./src/include/Printer.hpp"
-#include "./src/include/Reader.hpp"
+#include "./src/include/ArgumentReader.hpp"
 #include "./src/include/Sorter.hpp"
 
 void checking_input(int argc) {
@@ -20,12 +20,12 @@ int main(int argc, char* argv[]) {
     try {
         checking_input(argc);
 
-        Reader reader(argv[1]);
-        reader.open_input_file();
+        ArgumentReader reader(argv[1]);
+        ArgumentReader.open_input_file();
 
         CounterWord couter_word;
         couter_word.count_word(reader.input_file);
-        reader.input_file.close();
+        ArgumentReader.input_file.close();
 
         Sorter sorter;
         sorter.sort_dictionary(couter_word.dictionary);
