@@ -1,5 +1,5 @@
-#ifndef READER_H
-#define READER_H
+#ifndef ARGUMENT_READER_H
+#define ARGUMENT_READER_H
 
 #include <fstream>
 
