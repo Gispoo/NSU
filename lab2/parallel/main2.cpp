@@ -1,182 +1,155 @@
-#include <math.h>
+#include <cmath>
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <chrono>
 #include <omp.h>
 
+// ssh -i lin_priv -p 2222 opp145@84.237.52.21
+// Ov2P7z-qP
+// g++ -O2 -o 2 -fopenmp main2.cpp
+// scp -i lin_priv -P 2222 ./lab2/parallel/main2.cpp opp145@84.237.52.21:~/lab2/parallel
+
 using namespace std;
 using namespace std::chrono;
-
-void print_vector(vector<double> A) {
-    int N = A.size();
-    #pragma omp for
-    for (int i = 0; i < N; ++i) {
-        cout << A[i] << " ";
-    }
-    cout << "\n\n";
-}
-
-vector<double> init_A(int N) {
-    vector<double> A(N * N, 0);
-
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            if (i == j) {
-                A[N * i + j] = 2.0;
-            } else {
-                A[N * i + j] = 1.0;
-            }
-        }
-    }
-
-    return A;
-}
-
-vector<double> init_random(int N) {
-    vector<double> res(N);
-    for (int i = 0; i < N; ++i) {
-        res[i] = sin(2 * 3.14 * i / N);
-    }
-    return res;
-}
-
-vector<double> mul_vector_scalar(vector<double> const &A, double k, vector<double> &result) {
-    int N = A.size();
-    vector<double> result(N);
-    for (int i = 0; i < N; ++i) {
-        result[i] = A[i] * k;
-    }
-
-    return result;
-}
-
-vector<double> mul_matrix(vector<double> A, vector<double> B) {
-    int N = B.size();
-
-    vector<double> res(N, 0);
-    for (int i = 0; i < N; ++i) {
-        for (int k = 0; k < N; ++k) {
-            res[i] += A[N * i + k] * B[k];
-        }
-    }
-
-    return res;
-}
-
-vector<double> sub_vector(vector<double> A, vector<double> B) {
-    int N = A.size();
-    vector<double> result(N);
-    for (int i = 0; i < N; ++i) {
-        result[i] = A[i] - B[i];
-    }
-
-    return result;
-}
-
-double len_vec(vector<double> A) {
-    int N = A.size();
-
-    double sum = 0;
-    for (int i = 0; i < N; ++i) {
-        sum += A[i] * A[i];
-    }
-
-    return sqrt(sum);
-}
-
-bool is_solve(vector<double> c, vector<double> b) {
-    double e = 0.000000001;
-    if (len_vec(c) / len_vec(b) < e) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-double calculateTAY(vector<double> A, int N) {
-    double maxSum = 0;
-    for (int i = 0; i < N; i++) {
-        double rowSum = 0;
-        for (int j = 0; j < N; j++) {
-            rowSum += fabs(A[N * i + j]);
-        }
-        if (rowSum > maxSum) {
-            maxSum = rowSum;
-        }
-    }
-    return 1.0 / maxSum; 
-}
-
-vector<double> solve_system(vector<double> A, vector<double> b) {
-    int N = b.size();
-    vector<double> x(N, 0.0);
-    vector<double> c(N, 0.0);
-    vector<double> x_new(N, 0.0);
-    double t;
-
-    bool solved = false;
-    while (!solved) {
-        c = sub_vector(mul_matrix(A, x), b);
-        t = calculateTAY(A, N);
-
-        #pragma omp critical
-        {
-            x_new = sub_vector(x, mul_vector_scalar(c, t));
-            x = x_new;
-        }
-        solved = is_solve(c, b);
-    }
-
-    return x;
-}
-
-bool is_correct(vector<double> u, vector<double> x, int N) {
-    double error_rate = 1e-6;
-    for (int i = 0; i < N; ++i) {
-        if (fabs(u[i] - x[i]) > error_rate) {
-            printf("The decision is wrong\n\n");
-            return false;
-        }
-    }
-    printf("The decision is correct\n\n");
-    return true;
-}
 
 int main() {
     int N;
     cout << "Enter the size of the matrix N: ";
     cin >> N;
-    
-    int num_threads = 1;
-    while(num_threads <= 16) {
+
+    int thread_counts[] = {1, 2, 4, 8, 16};
+
+    for (int i = 0; i < 5; i++) {
+        int num_threads = thread_counts[i];
         omp_set_num_threads(num_threads);
-        int max_threads = omp_get_max_threads();
-        cout << "Maximum number of threads: " << max_threads << "\n";
-        
-        int min = 999999999;
-        for (int i = 0; i < 3; ++i) {
+        cout << "Number threads: " << num_threads << "\n\n";
+
+        int min_time = 999999999;
+
+        for (int j = 0; j < 3; j++) {
             auto start = high_resolution_clock::now();
 
-            #pragma omp parallel
+            vector<double> A(N * N, 0.0); 
+            vector<double> u(N, 0.0);
+            vector<double> b(N, 0.0);
+            vector<double> x(N, 0.0);
+            vector<double> c(N, 0.0);
+            
+            double len_b = 0.0;
+            double t_param = 0.0;
+            bool solved = false;
+            double tol = 1e-9;
+            double local_sum = 0.0;
+            double local_max = 0.0;
+            double norm_sum = 0.0;
+
+            #pragma omp parallel shared(A, u, b, x, c, len_b, t_param, solved)
             {
-            vector<double> A = init_A(N);
-            vector<double> u = init_random(N);
-            vector<double> b = mul_matrix(A, u);
-            vector<double> x = solve_system(A, b);
-            is_correct(u, x, N);
+                #pragma omp for
+                for (int i = 0; i < N; i++) {
+                    for (int j = 0; j < N; j++) {
+                        A[i * N + j] = (i == j) ? 2.0 : 1.0;
+                    }
+                }
+
+                #pragma omp for
+                for (int i = 0; i < N; i++) {
+                    u[i] = sin(2.0 * 3.14 * i / N);
+                }
+
+                #pragma omp for
+                for (int i = 0; i < N; i++) {
+                    double temp_sum = 0.0;
+                    for (int j = 0; j < N; j++) {
+                        temp_sum += A[i * N + j] * u[j];
+                    }
+                    b[i] = temp_sum;
+                }
+
+                #pragma omp for reduction(+:local_sum)
+                for (int i = 0; i < N; i++) {
+                    local_sum += b[i] * b[i];
+                }
+                #pragma omp single
+                {
+                    len_b = sqrt(local_sum);
+                }
+
+                #pragma omp for reduction(max:local_max)
+                for (int i = 0; i < N; i++) {
+                    double row_sum = 0.0;
+                    for (int j = 0; j < N; j++) {
+                        row_sum += fabs(A[i * N + j]);
+                    }
+                    if (row_sum > local_max) {
+                        local_max = row_sum;
+                    }
+                }
+                #pragma omp single
+                {
+                    t_param = 1.0 / local_max;
+                }
+
+
+                while (true) {               
+                    norm_sum = 0;
+                    #pragma omp for reduction(+:norm_sum)
+                    for (int i = 0; i < N; i++) {
+                        double temp_sum = 0.0;
+                        for (int j = 0; j < N; j++) {
+                            temp_sum += A[i * N + j] * x[j];
+                        }
+                        c[i] = temp_sum - b[i];
+                        norm_sum += c[i] * c[i];
+                    }
+                    
+                    #pragma omp single
+                    {
+                        double norm_c = sqrt(norm_sum);
+                        if (norm_c / len_b < tol) {
+                            solved = true;
+                        }
+                    }
+
+                    #pragma omp barrier
+
+                    if (solved) {
+                        break;
+                    }
+
+                    #pragma omp for
+                    for (int i = 0; i < N; i++) {
+                        x[i] = x[i] - t_param * c[i];
+                    }
+
+                    #pragma omp barrier
+                } // конец while
+            } // конец параллельной облости
+
+            if (j == 0) {
+                bool correct = true;
+                for (int i = 0; i < N; i++) {
+                    if (fabs(u[i] - x[i]) > 1e-6) {
+                        correct = false;
+                        break;
+                    }
+                }
+                if (correct) {
+                    cout << "The decision is correct\n";
+                } else {
+                    cout << "The decision is wrong\n";
+                }
             }
 
             auto end = high_resolution_clock::now();
-            auto duration = duration_cast<milliseconds>(end - start);
-            if (duration.count() < min) {
-                min = duration.count();
+            auto duration = duration_cast<milliseconds>(end - start).count();
+            if (duration < min_time) {
+                min_time = duration;
             }
-        }
-        cout << "Number threads: " << num_threads << "; Lead time: " << min << " milliseconds\n\n";
+        } // конец цикла из 3 запусков
 
-        num_threads *= 2;
-    }
+        cout << "Lead time: " << min_time << " milliseconds\n-----------------\n";
+    } // конец прохода по числу потоков
 
     return 0;
 }
