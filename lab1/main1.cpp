@@ -7,7 +7,7 @@
 #include <cstdlib>
 
 // ssh -i lin_priv -p 2222 opp145@84.237.52.21
-// ssh -i new_key -p 22 hpcuser145@84.237.117.10
+// ssh -i new_key -p 22 hpcuser145@84.237.117.10 -X
 // Ov2P7z-qP
 // mpicxx -O2 -o 1 main1.cpp
 // mpecxx -mpilog -O2 -o 1 main1.cpp

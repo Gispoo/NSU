@@ -1,0 +1,222 @@
+#include <iostream>
+#include <vector>
+#include <random>
+#include <chrono>
+#include <mpi.h>
+#include <algorithm>
+#include <cstdlib>
+// #include <cblas.h>
+
+// ssh -i new_key -p 22 hpcuser145@84.237.117.10 -X
+// mpicxx -O2 -o main main.cpp
+// ~/sw/bin/mpecc -mpilog -O2 -o main main.cpp компиляция
+// mpirun -np 2 ./main
+// scp -i new_key ./lab3/main.cpp hpcuser145@84.237.117.10:~/lab3
+// ~/sw/bin/jumpshot
+
+using namespace std;
+
+template <typename T>
+void copy_matrix(vector<vector<T>>& A, vector<vector<T>>& B, int n1, int n2) {
+    for (int i = 0; i < n1; ++i) {
+        for (int j = 0; j < n2; ++j) {
+            B[i][j] = A[i][j];
+        }
+    }
+}
+
+template <typename T>
+void print_matrix(vector<vector<T>>& matrix, int rows, int cols) {
+    cout << "Матрица " << rows << " * " << cols << "\n";
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << "\n";
+    }
+    cout << "\n";
+}
+
+template <typename T>
+void create_matrix(vector<vector<T>>& matrix, int rows, int cols, T fill_value = -1.0) {
+    if (fill_value == -1.0) { // Используем -1.0 как признак необходимости заполнения случайными числами
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<> dis(0, 9);
+
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                matrix[i][j] = dis(gen);
+            }
+        }
+    } else {
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                matrix[i][j] = fill_value;
+            }
+        }
+    }
+}
+
+template <typename T>
+void matrix_multiply(const vector<vector<T>>& A, const vector<vector<T>>& B, vector<vector<T>>& C) {
+    int n1 = A.size();
+    int n2 = A[0].size();
+    int n3 = B[0].size();
+
+    for (int i = 0; i < n1; ++i) {
+        for (int k = 0; k < n2; ++k) {
+            for (int j = 0; j < n3; ++j) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+}
+
+template <typename T>
+bool verify_result(const vector<vector<T>>& A, const vector<vector<T>>& B, double tolerance = 1e-5) {
+    if (A.size() != B.size() || A[0].size() != B[0].size()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < A.size(); ++i) {
+        for (size_t j = 0; j < A[0].size(); ++j) {
+            if (abs(A[i][j] - B[i][j]) > tolerance) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+template <typename T>
+void distribute_matrix_by_lines(const vector<vector<T>>& matrix, vector<vector<T>>& stripe_matrix, int blocks, int len_blocks, int step, MPI_Comm *comm_row) {
+    MPI_Datatype column_type;
+    MPI_Type_vector(
+        blocks,                                        // Количество блоков
+        len_blocks,                                  // Длина каждого блока
+        step,                                        // Шаг между началом каждого блока
+        MPI_DOUBLE,                                   // Тип данных
+        &column_type);                                // Коммуникатор
+
+    MPI_Type_commit(&column_type);
+
+    printf("Размер column_type: %ld, blocks: %d, len_blocks: %d, blocks * len_blocks: %d, step: %d\n", sizeof(column_type), blocks, len_blocks, blocks * len_blocks, step);
+
+    MPI_Scatter(
+        matrix.data()->data(),                   // Указатель на буфер отправки на корневом процессе
+        1,                                            // Количество элементов, отправляемых каждому процессу
+        column_type,                                  // Тип данных отправляемых элементов
+        stripe_matrix.data()->data(),                // Указатель на буфер приема на каждом процессе
+        1,                                           // Количество элементов, получаемых каждым процессом
+        column_type,                                 // Тип данных принимаемых элементов
+        0,                                            // Ранг корневого процесса
+        *comm_row);                                   // Коммуникатор
+}
+
+void init_2dgrid(int *size, int dims[], int *global_rank, MPI_Comm *comm_row, MPI_Comm *comm_col) {
+    MPI_Comm_size(MPI_COMM_WORLD, size);
+    MPI_Comm_rank(MPI_COMM_WORLD, global_rank);
+    // определение размеров решетки: dims
+    MPI_Dims_create(*size, 2, dims);
+    if (*global_rank == 0) {
+        printf("Процессов %d, решетка высотой %d, шириной %d\n", *size, dims[0], dims[1]);
+    }
+    MPI_Comm_split(MPI_COMM_WORLD, *global_rank % dims[1], *global_rank, comm_col);
+    MPI_Comm_split(MPI_COMM_WORLD, *global_rank / dims[1], *global_rank, comm_row);
+}
+
+int main(int argc, char** argv) {
+    MPI_Init(&argc, &argv);
+
+    // dims - размеры решетки по каждой размерности
+    int dims[2] = {0, 0};
+    int size, global_rank;
+    MPI_Comm comm_row, comm_col;
+
+    init_2dgrid(&size, dims, &global_rank, &comm_row, &comm_col);
+
+    int n1 = atoi(argv[1]);
+    int n2 = atoi(argv[2]);
+    int n3 = atoi(argv[3]);
+    
+    double start_time = MPI_Wtime();
+
+    vector<vector<double>> A(n1, vector<double>(n2)), B(n2, vector<double>(n3));
+    if (global_rank == 0) {
+        create_matrix(A, n1, n2);
+        cout << "Матрица А:\n";
+        print_matrix(A, n1, n2);
+        create_matrix(B, n2, n3);
+        cout << "Матрица В:\n";
+        print_matrix(B, n2, n3);
+    }
+
+    int rows_stripeA = n1 / dims[0];
+    vector<vector<double>> horizontal_stripeA(rows_stripeA, vector<double>(n2, 0.0));
+    if (global_rank % dims[1] == 0) {
+        MPI_Scatter(A.data()->data(), rows_stripeA * n2, MPI_DOUBLE, horizontal_stripeA.data()->data(), rows_stripeA * n2, MPI_DOUBLE, 0, comm_row);
+        for (int i = 0; i < size; ++i) {
+            MPI_Barrier(MPI_COMM_WORLD);
+            if (i == global_rank) {
+                cout << "----" << global_rank << "----" << "\n" << "Полоса матрицы А:\n";
+                print_matrix(horizontal_stripeA, rows_stripeA, n2);
+            }
+        }
+    }
+    MPI_Bcast(horizontal_stripeA.data()->data(), rows_stripeA * n2, MPI_DOUBLE, 0, comm_row);
+    
+    int cols_stripeB = n3 / dims[1];
+    vector<vector<double>> vertical_stripeB(n2, vector<double>(cols_stripeB, 0.0));
+    if (global_rank / dims[1] == 0) {
+        distribute_matrix_by_lines(B, vertical_stripeB, n2, cols_stripeB, n3, &comm_row);
+        for (int i = 0; i < size; ++i) {
+            MPI_Barrier(MPI_COMM_WORLD);
+            if (i == global_rank) {
+                cout << "----" << global_rank << "----" << "\n" << "Полоса матрицы B:\n";
+                print_matrix(vertical_stripeB, n2, cols_stripeB);
+            }
+        }
+    }
+    MPI_Bcast(vertical_stripeB.data()->data(), cols_stripeB * n2, MPI_DOUBLE, 0, comm_col);
+
+    vector<vector<double>> submatrixC(rows_stripeA, vector<double>(cols_stripeB, 0.0));
+    matrix_multiply(horizontal_stripeA, vertical_stripeB, submatrixC);
+    for (int i = 0; i < size; ++i) {
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (i == global_rank) {
+            cout << "----" << global_rank << "----" << "\n" << "Подматрица С:\n";
+            print_matrix(submatrixC, rows_stripeA, cols_stripeB);
+        }
+    }
+    
+    vector<vector<double>> C(n1, vector<double>(n3, 0.0));
+    MPI_Gather(submatrixC.data()->data(), rows_stripeA * cols_stripeB, MPI_DOUBLE, C.data()->data(), rows_stripeA * cols_stripeB, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    if (global_rank == 0) {
+        cout << "Результат:\n";
+        print_matrix(C, n1, n3);
+    }
+
+    double end_time = MPI_Wtime();
+
+    if (global_rank == 0) {
+        double parallel_time = end_time - start_time;
+        cout << "Время параллельного умножения: " << parallel_time << " секунд\n";
+
+        start_time = MPI_Wtime();
+        vector<vector<double>> C_serial(n1, vector<double>(n3, 0.0));
+        matrix_multiply(A, B, C_serial);
+        end_time = MPI_Wtime();
+        double serial_time = end_time - start_time;
+        cout << "Время последовательного умножения: " << serial_time << " секунд\n";
+
+        if (verify_result(C, C_serial)) {
+            cout << "Результат правильный.\n";
+        } else {
+            cout << "Результат НЕверен.\n";
+        }
+    }
+
+    MPI_Finalize();
+    return 0;
+}
