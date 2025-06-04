@@ -55,7 +55,7 @@ int main() {
             printf("Child exited normally with code %d\n", WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
             printf("Child terminated by signal %d\n", WTERMSIG(status));
-        } else { // как сюда попасть
+        } else {
             printf("Child exited abnormally----------\n");
         }
     }

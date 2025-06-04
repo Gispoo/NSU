@@ -22,12 +22,12 @@ int main() {
             sleep(10);
         } else {
             // === батя ===
-            printf("dad %d\n", pid2);
+            printf("dad %d\n", getpid());
             exit(5);
         }
     } else {
         // === дед процесс ===
-        printf("Grdad %d\n", pid);
+        printf("Grdad %d\n", getpid());
         sleep(30);
 
         int status;

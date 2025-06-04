@@ -16,8 +16,6 @@ int main(int argc, char *argv[]) {
     getchar();
     int b = 10;
     mmap(); 
-    // как пон€ть сохран€ютс€ ли файловые дискрипторы
-    // дескрипторы лежат в task struckt. почитать про него. 
 
     char *newargv[] = { argv[0], "--child", NULL };
     if (execv(argv[0], newargv) == -1) {

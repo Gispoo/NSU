@@ -57,8 +57,8 @@ int main() {
         sleep(1);
     }
     sleep(5);
-    free(allocs); // может brk приводить к проблемам при выделении больших кусков памяти 
-    // 
+    free(allocs); // может ли brk приводить к проблемам при выделении больших кусков памяти 
+    // при попытке освободить память в середине кучи
 
     size_t map_size = MAP_PAGES * sysconf(_SC_PAGESIZE);
     anon_region = mmap(NULL, map_size,

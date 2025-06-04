@@ -33,12 +33,28 @@ int main() {
     while (1) {
         socklen_t len = sizeof(cliaddr);
         ssize_t n = recvfrom(sockfd, buffer, BUF_SIZE, 0, (struct sockaddr *)&cliaddr, &len);
-        if (n < 0) continue;
-
+        if (n < 0) {
+            perror("recvfrom");
+            continue;
+        }
+    
+        // обработать recvfrom и sendto
         buffer[n] = '\0';
         printf("Получено от %s:%d: %s\n",
                inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), buffer);
 
-        sendto(sockfd, buffer, n, 0, (struct sockaddr *)&cliaddr, len);
+        ssize_t total_sent = 0;
+        while (total_sent < n) {
+            ssize_t sent = sendto(sockfd, buffer + total_sent, n - total_sent, 0,
+                                  (struct sockaddr *)&cliaddr, len);
+            if (sent < 0) {
+                perror("sendto");
+                break;
+            }
+            total_sent += sent;
+        }
     }
+
+    close(sockfd);
+    return 0;
 }
