@@ -1,1 +1,10 @@
-.vscode
+*
+!*/
+!*.*
+
+.vscode/
+
+*.log
+*.a
+*.o
+*.so
