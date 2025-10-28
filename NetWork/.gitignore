@@ -6,3 +6,11 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+.idea/
+*.mod
+*.log
+test*
+sem5/lab2/uploads/
+go.work
+
