@@ -1,0 +1,28 @@
+Синтаксис оператора INPUT:
+
+  INPUT ["подсказка"] (','|';') идентификаторы
+
+Идентификатор: буква, затем буквы/цифры, опционально '$' или '%'.
+
+Примеры корректных строк:
+  INPUT A
+  input a,b,c
+  INPUT "Введите X:"; X
+  INPUT "A,B:"; A,B
+  INPUT "Имя и возраст", Name$, Age%
+  INPUT   "Привет";   S$
+  INPUT X1, X2, X3%
+  INPUT "X,Y,Z", X, Y, Z
+  INPUT Name$
+  INPUT "n:"; n%
+
+Некорректные:
+  INPT X
+  INPUT "X";
+  INPUT ; X
+  INPUT "X" X
+  INPUT 1X
+  INPUT A,
+  INPUT "X"; , Y
+  INPUT "Недокрытая
+  INPUT "X:",
