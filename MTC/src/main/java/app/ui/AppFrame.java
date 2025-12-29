@@ -4,7 +4,7 @@ import app.core.*;
 import app.util.TextFiles;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import app.core.AntlrInputChecker;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -12,12 +12,15 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 
 public class AppFrame extends JFrame {
+    private final File rootDir = new File(".").getAbsoluteFile(); // корень проекта
     public static final String APP_TITLE = "BASIC INPUT Parser (Java)";
 
     private final JTextArea editor = new JTextArea();
     private final JTextArea output = new JTextArea();
+    private LineNumberView lineNumbers;
     private File currentFile = null;
     private int fontSize = 30;
     private boolean dirty = false;
@@ -28,6 +31,17 @@ public class AppFrame extends JFrame {
     private final Path autosaveDir = baseDir.resolve("autosave");
     private final Path autosavePath = autosaveDir.resolve("last_session.txt");
 
+    private boolean isInsideRoot(File f) {
+        try {
+            String rootPath = baseDir.toRealPath().toString();
+            String filePath = f.toPath().toRealPath().toString();
+            return filePath.startsWith(rootPath);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
     public AppFrame() {
         super(APP_TITLE);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -36,6 +50,12 @@ public class AppFrame extends JFrame {
         buildUI();
         bindEvents();
         tryRestoreAutosaveOrLoadTests();
+    }
+
+    private JFileChooser makeSafeChooser() {
+        JFileChooser ch = new JFileChooser(baseDir.toFile());
+        ch.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text files", "txt"));
+        return ch;
     }
 
     private void buildUI() {
@@ -52,6 +72,10 @@ public class AppFrame extends JFrame {
         JScrollPane editorScroll = new JScrollPane(editor);
         editorScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         editorScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // Нумерация строк слева от редактора
+        lineNumbers = new LineNumberView(editor);
+        editorScroll.setRowHeaderView(lineNumbers);
 
         JPanel bottom = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Результаты / Ошибки:");
@@ -148,8 +172,14 @@ public class AppFrame extends JFrame {
 
     private void changeFont(int delta) {
         fontSize = Math.max(8, Math.min(40, fontSize + delta));
-        editor.setFont(editor.getFont().deriveFont((float) fontSize));
+        Font f = editor.getFont().deriveFont((float) fontSize);
+        editor.setFont(f);
         output.setFont(output.getFont().deriveFont((float) fontSize));
+        if (lineNumbers != null) {
+            lineNumbers.setFont(f);
+            lineNumbers.revalidate();
+            lineNumbers.repaint();
+        }
     }
 
     private void newFile() {
@@ -162,16 +192,29 @@ public class AppFrame extends JFrame {
 
     private void openFile() {
         if (!confirmDiscard()) return;
-        JFileChooser ch = new JFileChooser();
-        ch.setFileFilter(new FileNameExtensionFilter("Text files", "txt"));
-        if (ch.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+
+        JFileChooser ch = makeSafeChooser();
+
+        while (true) {
+            int res = ch.showOpenDialog(this);
+            if (res != JFileChooser.APPROVE_OPTION) return;
+
             File f = ch.getSelectedFile();
+            if (!isInsideRoot(f)) {
+                JOptionPane.showMessageDialog(this,
+                        "Нельзя открывать файлы вне папки проекта.",
+                        APP_TITLE, JOptionPane.WARNING_MESSAGE);
+                continue; // спросить ещё раз
+            }
+
             editor.setText(TextFiles.readString(f.toPath()));
             currentFile = f;
             dirty = false;
             setTitle(APP_TITLE + " — Открыт: " + f.getName());
+            return;
         }
     }
+
 
     private void openTests() {
         Path p = testsDir.resolve("tests_input.txt");
@@ -193,13 +236,26 @@ public class AppFrame extends JFrame {
     }
 
     private void saveFileAs() {
-        JFileChooser ch = new JFileChooser();
-        ch.setFileFilter(new FileNameExtensionFilter("Text files", "txt"));
-        if (ch.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            currentFile = ch.getSelectedFile();
-            saveFile();
+        JFileChooser ch = makeSafeChooser();
+
+        while (true) {
+            int res = ch.showSaveDialog(this);
+            if (res != JFileChooser.APPROVE_OPTION) return;
+
+            File f = ch.getSelectedFile();
+            if (!isInsideRoot(f)) {
+                JOptionPane.showMessageDialog(this,
+                        "Нельзя сохранять файлы вне папки проекта.",
+                        APP_TITLE, JOptionPane.WARNING_MESSAGE);
+                continue; // снова показать диалог
+            }
+
+            currentFile = f;
+            saveFile(); // тут уже обычная запись
+            return;
         }
     }
+
 
     private boolean confirmDiscard() {
         if (!dirty) return true;
@@ -247,6 +303,15 @@ public class AppFrame extends JFrame {
     private void runParse() {
         output.setText("");
         String src = editor.getText();
+
+        // 1) ANTLR
+        output.append("=== ANTLR ===\n");
+        output.append(AntlrInputChecker.check(src));
+        output.append("\n");
+
+        // 2) Твой старый разбор (оставляем)
+        output.append("=== Custom lexer/parser ===\n");
+
         Lexer lx = new Lexer(src);
         var tokens = lx.lex();
 // lexical errors first
@@ -260,23 +325,57 @@ public class AppFrame extends JFrame {
         if (errors.isEmpty() && tokens.stream().noneMatch(t -> t.kind == TokenKind.ERROR)) {
             output.append("OK: синтаксических ошибок не найдено\n");
         } else {
+            errors.sort(Comparator.comparingInt((ParseError e) -> e.line).thenComparingInt(e -> e.col));
             for (ParseError e : errors) output.append(e.toString() + "\n");
         }
     }
 
     private void showHelp() {
-        String text = TextFiles.readString(assetsDir.resolve("help.txt"),
-                "Справка не найдена (assets/help.txt)\n\n" +
-                        "Синтаксис: INPUT [\"подсказка\"] (','|';') идентификаторы\n" +
-                        "Идентификатор: буква, затем буквы/цифры, опционально '$' или '%'.\n");
-        JOptionPane.showMessageDialog(this, new JScrollPane(new JTextArea(text)), "Справка / Примеры", JOptionPane.INFORMATION_MESSAGE);
+        String info = """
+        BASIC INPUT Parser (Java)
+        Версия: 1.0.0
+        Разработчик: Огилько Дмитрий Сергеевич, группа 23211
+        Дисциплина: Методы трансляции и компиляции
+
+        Программа предназначена для синтаксического анализа операторов INPUT языка BASIC.
+
+        Функциональность:
+        • загрузка и сохранение файлов;
+        • синтаксическая проверка с диагностикой ошибок;
+        • автосохранение сессий;
+        • отчёт и тестовые примеры;
+        • поддержка горячих клавиш;
+        • нумерация строк.
+
+        Для подробностей см. пункт меню «Текст» (отчёт).
+        НГУ, 2025
+        """;
+        JTextArea ta = new JTextArea(info);
+        ta.setEditable(false);
+        ta.setFont(new Font("Serif", Font.PLAIN, 16));
+        ta.setLineWrap(true);
+        ta.setWrapStyleWord(true);
+        JOptionPane.showMessageDialog(this, new JScrollPane(ta),
+                "Справочная информация", JOptionPane.INFORMATION_MESSAGE);
     }
 
+
     private void showReport() {
+        // читаем текстовый отчёт; если файла нет — используем встроенный дефолт
         String text = TextFiles.readString(assetsDir.resolve("report.txt"), defaultReport());
-        JTextArea ta = new JTextArea(text); ta.setLineWrap(true); ta.setWrapStyleWord(true);
-        ta.setFont(new Font("Serif", Font.PLAIN, 14));
-        JOptionPane.showMessageDialog(this, new JScrollPane(ta), "Отчёт — ТЕКСТ", JOptionPane.PLAIN_MESSAGE);
+
+        JTextArea ta = new JTextArea(text);
+        ta.setLineWrap(true);
+        ta.setWrapStyleWord(true);
+        ta.setFont(new Font("Serif", Font.PLAIN, 16));
+        ta.setEditable(false);
+
+        JOptionPane.showMessageDialog(
+                this,
+                new JScrollPane(ta),
+                "Отчёт — ТЕКСТ",
+                JOptionPane.PLAIN_MESSAGE
+        );
     }
 
 
@@ -287,7 +386,7 @@ public class AppFrame extends JFrame {
                 "Язык и грамматика\nТокены: INPUT, STRING, ID, ',', ';', EOL, EOF\n" +
                 "Грамматика (стартовый символ Z):\n Z → INPUT H VarList EOL\n H → STRING ',' | STRING ';' | ε\n VarList → Var T\n T → ',' Var T | ε\n Var → ID\n\n" +
                 "Классификация: КС-грамматика (Тип-2 по Хомскому).\n\n" +
-                "FIRST/FOLLOW (доказательство LL(1))\nFIRST(Z)={INPUT}\nFIRST(H)={STRING,ε}\nFIRST(VarList)={ID}\nFIRST(T)={',',ε}\nFIRST(Var)={ID}\nFOLLOW(Z)={$}\nFOLLOW(H)={ID}\nFOLLOW(VarList)={EOL}\nFOLLOW(T)={EOL}\nFOLLOW(Var)={',',EOL}\nВывод: для H нужен lookahead на один символ (','|';'), грамматика LL(1).\n\n" +
+                "FIRST/FOLLOW (доказательство LL(1))\nFIRST(Z)={INPUT}\nFIRST(H)={STRING,ε}\nFIRST(VarList)={ID}\nFIRST(T)={',',ε}\nFIRST(Var)={ID}\nFOLLOW(H)={ID}\nFOLLOW(VarList)={EOL}\nFOLLOW(T)={EOL}\nFOLLOW(Var)={',',EOL}\nВывод: для H нужен lookahead на один символ (','|';'), грамматика LL(1).\n\n" +
                 "Метод анализа\nНисходящий LL(1), рекурсивный спуск.\n\n" +
                 "Нейтрализация ошибок\nПаник-режим: пропускаем до ID/EOL/EOF, выдаём сообщение с позицией.\n";
     }

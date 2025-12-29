@@ -1,0 +1,126 @@
+/home/dimka/NSU/VichMath/схемы/main.py:12: RuntimeWarning: overflow encountered in multiply
+  return 0.5 * u * u
+/home/dimka/NSU/VichMath/схемы/main.py:22: RuntimeWarning: invalid value encountered in subtract
+  return u - r_param * (f_next - f)
+/home/dimka/NSU/VichMath/схемы/main.py:22: RuntimeWarning: invalid value encountered in multiply
+  return u - r_param * (f_next - f)
+Схема: forward  N= 100 λ= 0.05 T= 0.5 t=0.5000 max= 4.050 min= 1.979
+Схема: forward  N= 100 λ= 0.05 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N= 100 λ= 0.05 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N100_lambda0.05_CFL.png
+
+Схема: forward  N= 100 λ= 0.10 T= 0.5 t=0.5000 max= 4.060 min= 1.977
+Схема: forward  N= 100 λ= 0.10 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N= 100 λ= 0.10 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N100_lambda0.10_CFL.png
+
+Схема: forward  N= 100 λ= 0.20 T= 0.5 t=0.5000 max= 4.080 min= 1.973
+Схема: forward  N= 100 λ= 0.20 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N= 100 λ= 0.20 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N100_lambda0.20_CFL.png
+
+Схема: forward  N= 100 λ= 0.25 T= 0.5 t=0.5000 max= 4.084 min= 1.973
+Схема: forward  N= 100 λ= 0.25 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N= 100 λ= 0.25 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N100_lambda0.25_CFL.png
+
+Схема: forward  N=1000 λ= 0.05 T= 0.5 t=0.5000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.05 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.05 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N1000_lambda0.05_CFL.png
+
+Схема: forward  N=1000 λ= 0.10 T= 0.5 t=0.5000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.10 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.10 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N1000_lambda0.10_CFL.png
+
+Схема: forward  N=1000 λ= 0.20 T= 0.5 t=0.5000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.20 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.20 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N1000_lambda0.20_CFL.png
+
+Схема: forward  N=1000 λ= 0.25 T= 0.5 t=0.5000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.25 T= 1.0 t=1.0000 max=   nan min=   nan
+Схема: forward  N=1000 λ= 0.25 T= 2.0 t=2.0000 max=   nan min=   nan
+График сохранён: scheme_forward_N1000_lambda0.25_CFL.png
+
+Схема: backward N= 100 λ= 0.05 T= 0.5 t=0.5000 max= 3.969 min= 2.018
+Схема: backward N= 100 λ= 0.05 T= 1.0 t=1.0000 max= 3.940 min= 2.037
+Схема: backward N= 100 λ= 0.05 T= 2.0 t=2.0000 max= 3.880 min= 2.083
+График сохранён: scheme_backward_N100_lambda0.05_CFL.png
+
+Схема: backward N= 100 λ= 0.10 T= 0.5 t=0.5000 max= 3.977 min= 2.016
+Схема: backward N= 100 λ= 0.10 T= 1.0 t=1.0000 max= 3.954 min= 2.033
+Схема: backward N= 100 λ= 0.10 T= 2.0 t=2.0000 max= 3.906 min= 2.071
+График сохранён: scheme_backward_N100_lambda0.10_CFL.png
+
+Схема: backward N= 100 λ= 0.20 T= 0.5 t=0.5000 max= 3.992 min= 2.012
+Схема: backward N= 100 λ= 0.20 T= 1.0 t=1.0000 max= 3.983 min= 2.024
+Схема: backward N= 100 λ= 0.20 T= 2.0 t=2.0000 max= 3.965 min= 2.049
+График сохранён: scheme_backward_N100_lambda0.20_CFL.png
+
+Схема: backward N= 100 λ= 0.25 T= 0.5 t=0.5000 max= 3.996 min= 2.011
+Схема: backward N= 100 λ= 0.25 T= 1.0 t=1.0000 max= 3.991 min= 2.022
+Схема: backward N= 100 λ= 0.25 T= 2.0 t=2.0000 max= 3.982 min= 2.044
+График сохранён: scheme_backward_N100_lambda0.25_CFL.png
+
+Схема: backward N=1000 λ= 0.05 T= 0.5 t=0.5000 max= 3.997 min= 2.002
+Схема: backward N=1000 λ= 0.05 T= 1.0 t=1.0000 max= 3.994 min= 2.004
+Схема: backward N=1000 λ= 0.05 T= 2.0 t=2.0000 max= 3.987 min= 2.007
+График сохранён: scheme_backward_N1000_lambda0.05_CFL.png
+
+Схема: backward N=1000 λ= 0.10 T= 0.5 t=0.5000 max= 3.998 min= 2.002
+Схема: backward N=1000 λ= 0.10 T= 1.0 t=1.0000 max= 3.995 min= 2.003
+Схема: backward N=1000 λ= 0.10 T= 2.0 t=2.0000 max= 3.991 min= 2.006
+График сохранён: scheme_backward_N1000_lambda0.10_CFL.png
+
+Схема: backward N=1000 λ= 0.20 T= 0.5 t=0.5000 max= 3.999 min= 2.001
+Схема: backward N=1000 λ= 0.20 T= 1.0 t=1.0000 max= 3.998 min= 2.002
+Схема: backward N=1000 λ= 0.20 T= 2.0 t=2.0000 max= 3.997 min= 2.005
+График сохранён: scheme_backward_N1000_lambda0.20_CFL.png
+
+Схема: backward N=1000 λ= 0.25 T= 0.5 t=0.5000 max= 4.000 min= 2.001
+Схема: backward N=1000 λ= 0.25 T= 1.0 t=1.0000 max= 3.999 min= 2.002
+Схема: backward N=1000 λ= 0.25 T= 2.0 t=2.0000 max= 3.998 min= 2.004
+График сохранён: scheme_backward_N1000_lambda0.25_CFL.png
+
+Схема: rusanov  N= 100 λ= 0.05 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.05 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.05 T= 2.0 t=2.0000 max= 4.136 min= 1.848
+График сохранён: scheme_rusanov_N100_lambda0.05_CFL.png
+
+Схема: rusanov  N= 100 λ= 0.10 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.10 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.10 T= 2.0 t=2.0000 max= 4.119 min= 1.839
+График сохранён: scheme_rusanov_N100_lambda0.10_CFL.png
+
+Схема: rusanov  N= 100 λ= 0.20 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.20 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.20 T= 2.0 t=2.0000 max= 4.074 min= 1.805
+График сохранён: scheme_rusanov_N100_lambda0.20_CFL.png
+
+Схема: rusanov  N= 100 λ= 0.25 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.25 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N= 100 λ= 0.25 T= 2.0 t=2.0000 max= 4.037 min= 1.820
+График сохранён: scheme_rusanov_N100_lambda0.25_CFL.png
+
+Схема: rusanov  N=1000 λ= 0.05 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.05 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.05 T= 2.0 t=2.0000 max= 4.099 min= 1.880
+График сохранён: scheme_rusanov_N1000_lambda0.05_CFL.png
+
+Схема: rusanov  N=1000 λ= 0.10 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.10 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.10 T= 2.0 t=2.0000 max= 4.082 min= 1.874
+График сохранён: scheme_rusanov_N1000_lambda0.10_CFL.png
+
+Схема: rusanov  N=1000 λ= 0.20 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.20 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.20 T= 2.0 t=2.0000 max= 4.015 min= 1.841
+График сохранён: scheme_rusanov_N1000_lambda0.20_CFL.png
+
+Схема: rusanov  N=1000 λ= 0.25 T= 0.5 t=0.5000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.25 T= 1.0 t=1.0000 max= 4.000 min= 2.000
+Схема: rusanov  N=1000 λ= 0.25 T= 2.0 t=2.0000 max= 4.042 min= 1.853
+График сохранён: scheme_rusanov_N1000_lambda0.25_CFL.png
+

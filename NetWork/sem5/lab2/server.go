@@ -12,6 +12,16 @@ import (
 	"time"
 )
 
+//docker-compose up -d server
+//docker-compose run client /app/client /app/files/test1.txt localhost 8080
+
+// docker stop lab2_server, docker-compose down
+
+//docker ps          # показать запущенные контейнеры
+//docker-compose ps  # показать контейнеры этого проекта
+
+//docker-compose restart server
+
 type ClientConnection struct {
 	conn     net.Conn
 	clientID int

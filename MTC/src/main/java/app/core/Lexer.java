@@ -48,6 +48,21 @@ public class Lexer {
         while (i < src.length()) {
             char ch = peek();
             if (ch == ' ' || ch == '\t' || ch == '\r') { advance(); continue; }
+
+            if (ch == '\'') {
+                // апостроф — комментарий до конца строки
+                while (i < src.length() && peek() != '\n') advance();
+                continue;
+            }
+
+            if (ch == 'R' && peek(1) == 'E' && peek(2) == 'M'
+                    && !Character.isLetterOrDigit(peek(3))) {
+                while (i < src.length() && peek() != '\n') {
+                    advance();
+                }
+                continue;
+            }
+
             if (ch == '\n') { add(tokens, TokenKind.EOL, "\\n", line, col); advance(); continue; }
             if (ch == ',') { add(tokens, TokenKind.COMMA, ",", line, col); advance(); continue; }
             if (ch == ';') { add(tokens, TokenKind.SEMI, ";", line, col); advance(); continue; }
@@ -60,18 +75,22 @@ public class Lexer {
                     sb.append(peek()); advance();
                 }
                 if (peek() == '"') { sb.append('"'); advance(); add(tokens, TokenKind.STRING, sb.toString(), l, c); }
-                else { add(tokens, TokenKind.ERROR, "Unclosed string literal", l, c); }
+                else { add(tokens, TokenKind.ERROR, "Незакрытый строковый литерал", l, c); }
                 continue;
             }
 
             if (isAlpha(ch)) {
                 int l = line, c = col;
                 StringBuilder sb = new StringBuilder();
-                sb.append(ch); advance();
-                while (isAlnum(peek())) { sb.append(peek()); advance(); }
-                if (peek() == '$' || peek() == '%') { sb.append(peek()); advance(); }
+                sb.append(ch);
+                advance();
+                while (isAlnum(peek())) {
+                    sb.append(peek());
+                    advance();
+                }
                 String lex = sb.toString();
-                if (lex.equalsIgnoreCase("INPUT")) {
+                // регистрозависимо: только "INPUT" — ключевое слово
+                if (lex.equals("INPUT")) {
                     add(tokens, TokenKind.INPUT, lex, l, c);
                 } else {
                     add(tokens, TokenKind.ID, lex, l, c);
@@ -79,8 +98,9 @@ public class Lexer {
                 continue;
             }
 
+
 // unknown char
-            add(tokens, TokenKind.ERROR, "Unexpected character: " + ch, line, col);
+            add(tokens, TokenKind.ERROR, "Неожиданный символ: " + ch, line, col);
             advance();
         }
         if (tokens.isEmpty() || tokens.get(tokens.size()-1).kind != TokenKind.EOL) {

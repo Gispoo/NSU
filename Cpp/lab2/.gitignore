@@ -1,6 +1,0 @@
-*.exe
-*.dsym
-main
-raylib
-build
-.vscode

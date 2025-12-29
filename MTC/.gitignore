@@ -10,6 +10,7 @@ gradlew
 gradlew.bat
 settings.gradle
 autosave/
+tools/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

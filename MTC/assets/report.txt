@@ -23,7 +23,6 @@ FIRST(H) = { STRING, ε }
 FIRST(VarList) = { ID }
 FIRST(T) = { ',', ε }
 FIRST(Var) = { ID }
-FOLLOW(Z) = { $ }
 FOLLOW(H) = { ID }
 FOLLOW(VarList) = { EOL }
 FOLLOW(T) = { EOL }
