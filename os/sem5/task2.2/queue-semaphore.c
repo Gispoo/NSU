@@ -16,7 +16,9 @@ struct _Queue {
 	int count;		
 	int max_count;
 
-	sem_t sem;
+	sem_t mutex;
+	sem_t items;
+	sem_t spaces;
 
 	long add_attempts;		
 	long get_attempts;		
@@ -61,8 +63,8 @@ queue_t *queue_init(int max_count) {
 		abort();
 	}
 
-	if (sem_init(&q->sem, 0, 1) != 0) {
-		perror("queue_init: pthread_create() failed: Failed to initialize spinlock");
+	if (sem_init(&q->mutex, 0, 1) != 0 || sem_init(&q->items, 0, 0) != 0 || sem_init(&q->spaces, 0, max_count) != 0 ) {
+		perror("queue_init: Failed to initialize semaphores");
 		abort();
 	}
 
@@ -71,7 +73,9 @@ queue_t *queue_init(int max_count) {
 
 void queue_destroy(queue_t *q) {
 	pthread_cancel(q->qmonitor_tid);
-	sem_destroy(&q->sem);
+	sem_destroy(&q->mutex);
+	sem_destroy(&q->items);
+	sem_destroy(&q->spaces);
 
 	qnode_t *cur_node = q->first;
 	while (cur_node != NULL) {
@@ -83,16 +87,12 @@ void queue_destroy(queue_t *q) {
 }
 
 int queue_add(queue_t *q, int val) {
-	sem_wait(&q->sem);
-
+	sem_wait(&q->spaces);
+	sem_wait(&q->mutex);
+	
 	q->add_attempts++;
-
+	
 	assert(q->count <= q->max_count);
-
-	if (q->count == q->max_count) {
-		sem_post(&q->sem);
-		return 0;
-	}
 
 	qnode_t *new = malloc(sizeof(qnode_t));
 	if (!new) {
@@ -112,21 +112,19 @@ int queue_add(queue_t *q, int val) {
 	q->count++;
 	q->add_count++;
 
-	sem_post(&q->sem);
+	sem_post(&q->mutex);
+    sem_post(&q->items);
+
 	return 1;
 }
 
 int queue_get(queue_t *q, int *val) {
-	sem_wait(&q->sem);
-
+	sem_wait(&q->items);
+    sem_wait(&q->mutex);
+	
 	q->get_attempts++;
 
 	assert(q->count >= 0);
-
-	if (q->count == 0) {
-		sem_post(&q->sem);
-		return 0;
-	}
 
 	qnode_t *tmp = q->first;
 	*val = tmp->val;
@@ -139,7 +137,9 @@ int queue_get(queue_t *q, int *val) {
 	q->count--;
 	q->get_count++;
 
-	sem_post(&q->sem);
+	sem_post(&q->mutex);
+    sem_post(&q->spaces);
+
 	return 1;
 }
 

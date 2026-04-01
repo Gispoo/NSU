@@ -77,7 +77,7 @@ void *writer(void *arg) {
 		if (!ok)
 			continue;
 		i++;
-		usleep(100);
+		// usleep(100);
 	}
 
 	return NULL;
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 	pthread_t reader_tid, writer_tid;
 	queue_t *q;
 	int err;
-// инициализировать семафор чтобы выполнял свой функционал и экономил CPU
+	// объяснить нужен ли или нет mutex в структуре семфора и почему
 	printf("main:\t[%d %d %d]\n", getpid(), getppid(), gettid());
 
 	q = queue_init(max_count);
